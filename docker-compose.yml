@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file: ./backend/.env
+    environment:
+      - DATABASE_URL=./db/td_demo.db
+      - CORS_ORIGINS=http://localhost:3000
+      - SEED_DB=true
+      - DEBUG=false
+    volumes:
+      - db_data:/app/db
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_DEMO_EMPLOYEE_ID: emp_001
+        NEXT_PUBLIC_DEMO_MANAGER_ID: mgr_001
+        NEXT_PUBLIC_USE_MOCK: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
