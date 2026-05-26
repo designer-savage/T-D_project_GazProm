@@ -118,55 +118,15 @@ docker compose up --build
 - Python **3.11+** → [python.org](https://www.python.org/downloads/)
 - Node.js **18+** → [nodejs.org](https://nodejs.org/)
 
-### Linux / macOS
+### Linux / macOS / Windows — одной командой
 
-**Одной командой (рекомендуется):**
 ```bash
-./dev.sh
-```
-Скрипт сам создаст venv, установит зависимости и поднимет бэкенд с фронтендом параллельно. Логи выводятся с префиксами `[backend]` / `[frontend]`. Остановка — Ctrl+C.
-
-**Вручную:**
-```bash
-# Терминал 1 — бэкенд
-cd backend
-cp .env.example .env          # вписать GROQ_API_KEY
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python main.py
-
-# Терминал 2 — фронтенд
-cd frontend
-npm install
-npm run dev
+python start.py
 ```
 
-### Windows
+Скрипт определяет платформу автоматически, создаёт venv, устанавливает зависимости и поднимает бэкенд с фронтендом параллельно. Логи обоих процессов выводятся с цветными префиксами `[backend]` / `[frontend]`. Остановка — Ctrl+C.
 
-`dev.sh` на Windows не работает — запускать вручную в двух терминалах.
-
-**Терминал 1 — бэкенд (PowerShell):**
-```powershell
-cd backend
-Copy-Item .env.example .env    # вписать GROQ_API_KEY в .env
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python main.py
-```
-
-> Если PowerShell блокирует выполнение скриптов, выполнить один раз:
-> ```powershell
-> Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-> ```
-
-**Терминал 2 — фронтенд (PowerShell или cmd):**
-```powershell
-cd frontend
-npm install
-npm run dev
-```
+При первом запуске, если `backend/.env` не существует, скрипт создаст его из `.env.example` и попросит вписать ключ. После этого запустить повторно.
 
 FastAPI поднимается на `http://localhost:8000`, Next.js — на `http://localhost:3000`. При старте бэкенда автоматически создаётся SQLite и заливаются seed-данные: 10 сотрудников, 20 курсов, 15 документов базы знаний.
 
