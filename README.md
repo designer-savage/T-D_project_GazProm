@@ -11,10 +11,10 @@
 
 Система делает следующее:
 
-1. **Оркестратор** разбирает запрос и понимает, что нужны два агента — карьеры и обучения
+1. **Оркестратор** классифицирует запрос через LLM и понимает, что нужны два агента — карьеры и обучения
 2. **Агент карьеры** смотрит текущий грейд, KPI, компетенции сотрудника
 3. **Агент обучения** подбирает конкретные курсы из каталога под выявленные пробелы
-4. Оба ответа стримятся в чат через SSE
+4. Оба ответа стримятся в чат через SSE, история диалога сохраняется между сессиями
 
 ---
 
@@ -22,16 +22,12 @@
 
 | Агент | Задача | Источники данных |
 |---|---|---|
-| **Оркестратор** | Классифицирует запрос, роутит к агентам | — |
+| **Оркестратор** | Классифицирует запрос через LLM, роутит к агентам | — |
 | **Агент карьеры** | Анализирует грейд, KPI, строит карьерный трек | `employees`, `kpi_records`, `competencies` |
 | **Агент обучения** | Подбирает курсы, строит траекторию | `courses`, `learning_progress` |
 | **Агент онбординга** | Отвечает на вопросы по политикам и процессам | `knowledge_documents` (FTS5 RAG) |
 
-Классификация запроса — по ключевым словам:
-- `карьер / грейд / рост / тимлид` → агент карьеры
-- `курс / обучен / навык / прокач` → агент обучения
-- `онбординг / политик / доступ / командировк` → агент онбординга
-- неоднозначный запрос → карьера + обучение последовательно
+Классификация запроса — один быстрый LLM-вызов (~200 мс), определяет одно из четырёх намерений: `career`, `learning`, `onboarding`, `mixed`. При `mixed` запускаются агент карьеры и агент обучения последовательно.
 
 ---
 
@@ -40,7 +36,7 @@
 | Слой | Технологии |
 |---|---|
 | LLM | Groq API (`llama-3.3-70b-versatile`) |
-| Бэкенд | Python 3.11, FastAPI, LangChain, aiosqlite |
+| Бэкенд | Python 3.11+, FastAPI, LangChain, aiosqlite |
 | RAG | SQLite FTS5 (без эмбеддингов, полнотекстовый поиск) |
 | Фронтенд | Next.js 14, React 18, TypeScript, Tailwind CSS |
 | Стриминг | SSE (Server-Sent Events) |
@@ -51,26 +47,43 @@
 
 ## Запуск через Docker (рекомендуется)
 
+Работает одинаково на Linux, macOS и Windows. Docker берёт на себя все зависимости.
+
 ### Требования
 
-- [Docker](https://docs.docker.com/get-docker/) 24+ с Docker Compose v2
+- [Docker Desktop](https://docs.docker.com/get-docker/) 24+ (включает Docker Compose v2)
 
+Проверить установку:
 ```bash
 docker --version
 docker compose version
 ```
 
-### 1. Клонировать репозиторий
+### 1. Получить исходники
 
+**Через git:**
 ```bash
 git clone https://github.com/designer-savage/T-D_project_GazProm.git
 cd T-D_project_GazProm
 ```
 
+**Или скачать архив** с [последнего релиза](https://github.com/designer-savage/T-D_project_GazProm/releases/latest) и распаковать.
+
 ### 2. Настроить окружение
 
+**Linux / macOS:**
 ```bash
 cp backend/.env.example backend/.env
+```
+
+**Windows (PowerShell):**
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
+
+**Windows (cmd):**
+```cmd
+copy backend\.env.example backend\.env
 ```
 
 Открыть `backend/.env` и вписать ключ Groq API:
@@ -98,40 +111,64 @@ docker compose up --build
 
 ---
 
-## Запуск локально
+## Запуск локально (без Docker)
 
-### Одной командой (рекомендуется)
+### Требования
 
+- Python **3.11+** → [python.org](https://www.python.org/downloads/)
+- Node.js **18+** → [nodejs.org](https://nodejs.org/)
+
+### Linux / macOS
+
+**Одной командой (рекомендуется):**
 ```bash
 ./dev.sh
 ```
+Скрипт сам создаст venv, установит зависимости и поднимет бэкенд с фронтендом параллельно. Логи выводятся с префиксами `[backend]` / `[frontend]`. Остановка — Ctrl+C.
 
-Скрипт сам создаст venv, установит зависимости и поднимет бэкенд с фронтендом параллельно. Логи обоих процессов выводятся с цветными префиксами `[backend]` / `[frontend]`. Остановка — Ctrl+C.
-
-### Вручную (бэкенд → фронтенд)
-
-#### Бэкенд
-
+**Вручную:**
 ```bash
+# Терминал 1 — бэкенд
 cd backend
+cp .env.example .env          # вписать GROQ_API_KEY
 python -m venv .venv
-source .venv/bin/activate      # Linux/macOS
-# .venv\Scripts\activate       # Windows
+source .venv/bin/activate
 pip install -r requirements.txt
 python main.py
-```
 
-FastAPI поднимается на `http://localhost:8000`. При старте автоматически создаётся SQLite и заливаются seed-данные: 10 сотрудников, 20 курсов, 15 документов базы знаний.
-
-#### Фронтенд
-
-```bash
+# Терминал 2 — фронтенд
 cd frontend
 npm install
 npm run dev
 ```
 
-Next.js открывается на `http://localhost:3000`.
+### Windows
+
+`dev.sh` на Windows не работает — запускать вручную в двух терминалах.
+
+**Терминал 1 — бэкенд (PowerShell):**
+```powershell
+cd backend
+Copy-Item .env.example .env    # вписать GROQ_API_KEY в .env
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python main.py
+```
+
+> Если PowerShell блокирует выполнение скриптов, выполнить один раз:
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+> ```
+
+**Терминал 2 — фронтенд (PowerShell или cmd):**
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+FastAPI поднимается на `http://localhost:8000`, Next.js — на `http://localhost:3000`. При старте бэкенда автоматически создаётся SQLite и заливаются seed-данные: 10 сотрудников, 20 курсов, 15 документов базы знаний.
 
 ### Переменные окружения
 
@@ -169,7 +206,7 @@ docker compose down -v            # остановить + сбросить БД
 
 ## Частые проблемы
 
-**Порт 3000 или 8000 уже занят** — поменяй маппинг в `docker-compose.yml`:
+**Порт 3000 или 8000 уже занят** — поменять маппинг в `docker-compose.yml`:
 ```yaml
 ports:
   - "3001:3000"
@@ -193,7 +230,7 @@ docker compose up
 
 ```
 ├── backend/
-│   ├── agents/          # orchestrator, career_agent, learning_agent, onboarding_agent
+│   ├── agents/          # orchestrator, career_agent, learning_agent, onboarding_agent, reviewer
 │   ├── core/            # config (pydantic-settings), database, seed_data
 │   ├── db/              # schema.sql, td_demo.db (создаётся при старте)
 │   ├── rag/             # retriever.py — FTS5 поиск по knowledge_fts
