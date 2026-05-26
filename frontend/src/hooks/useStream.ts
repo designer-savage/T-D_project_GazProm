@@ -9,6 +9,24 @@ export function useStream() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [activeAgent, setActiveAgent] = useState<AgentType | null>(null)
 
+  const loadHistory = useCallback(async (employeeId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/chat/history?employee_id=${employeeId}&limit=10`)
+      if (!res.ok) return
+      const data = await res.json()
+      if (!data.messages?.length) return
+      const loaded: Message[] = data.messages.map((m: { role: string; content: string }) => ({
+        id: crypto.randomUUID(),
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        timestamp: new Date(),
+      }))
+      setMessages(loaded)
+    } catch {
+      // история недоступна — не критично
+    }
+  }, [])
+
   const sendMessage = useCallback(async (query: string, employeeId: string) => {
     const userMsg: Message = {
       id: crypto.randomUUID(),
@@ -16,7 +34,12 @@ export function useStream() {
       content: query,
       timestamp: new Date(),
     }
-    setMessages((prev) => [...prev, userMsg])
+
+    let historySnapshot: { role: string; content: string }[] = []
+    setMessages((prev) => {
+      historySnapshot = prev.map((m) => ({ role: m.role, content: m.content }))
+      return [...prev, userMsg]
+    })
     setIsStreaming(true)
 
     const assistantId = crypto.randomUUID()
@@ -32,7 +55,11 @@ export function useStream() {
       const res = await fetch(`${API_URL}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, employee_id: employeeId }),
+        body: JSON.stringify({
+          query,
+          employee_id: employeeId,
+          history: historySnapshot,
+        }),
       })
 
       const reader = res.body!.getReader()
@@ -69,6 +96,11 @@ export function useStream() {
               setMessages((prev) =>
                 prev.map((m) => (m.id === assistantId ? { ...m, content: accText } : m))
               )
+            } else if (eventType === "clarification") {
+              accText += `\n\n> ${data.text}`
+              setMessages((prev) =>
+                prev.map((m) => (m.id === assistantId ? { ...m, content: accText } : m))
+              )
             }
           }
         }
@@ -79,5 +111,5 @@ export function useStream() {
     }
   }, [])
 
-  return { messages, isStreaming, activeAgent, sendMessage }
+  return { messages, isStreaming, activeAgent, sendMessage, loadHistory }
 }

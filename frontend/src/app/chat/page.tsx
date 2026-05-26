@@ -17,7 +17,7 @@ const DEMO_IDS = {
 export default function ChatPage() {
   const [employee, setEmployee] = useState<Employee | null>(null)
   const [isManager, setIsManager] = useState(false)
-  const { messages, isStreaming, sendMessage } = useStream()
+  const { messages, isStreaming, sendMessage, loadHistory } = useStream()
 
   const currentId = isManager ? DEMO_IDS.manager : DEMO_IDS.employee
 
@@ -27,7 +27,10 @@ export default function ChatPage() {
       return
     }
     api.getEmployee(currentId).then(setEmployee).catch(() => setEmployee(mockEmployee))
-  }, [currentId])
+    if (!USE_MOCK) {
+      loadHistory(currentId)
+    }
+  }, [currentId, loadHistory])
 
   const handlePreset = (text: string) => {
     sendMessage(text, currentId)

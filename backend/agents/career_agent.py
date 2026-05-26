@@ -1,4 +1,5 @@
 import aiosqlite
+from typing import AsyncGenerator
 from langchain_groq import ChatGroq
 from rag.retriever import retrieve, format_context
 from core.config import settings
@@ -28,7 +29,17 @@ async def _get_competencies(employee_id: str) -> list[dict]:
         return [dict(r) for r in rows]
 
 
-async def run(query: str, employee_context: dict) -> str:
+def _format_history(history: list[dict]) -> str:
+    if not history:
+        return ""
+    lines = []
+    for m in history[-6:]:
+        speaker = "Сотрудник" if m["role"] == "user" else "Ассистент"
+        lines.append(f"{speaker}: {m['content']}")
+    return "\n\nПредыдущий диалог:\n" + "\n".join(lines)
+
+
+async def run(query: str, employee_context: dict, history: list[dict] | None = None) -> tuple[AsyncGenerator[str, None], list[dict]]:
     employee_id = employee_context.get("id", "")
     grade = employee_context.get("grade", "middle")
 
@@ -47,6 +58,8 @@ async def run(query: str, employee_context: dict) -> str:
     comp_text = "\n".join(
         [f"- {c['skill_name']}: {c['current_level']}/5 → цель {c['target_level']}/5" for c in competencies]
     ) or "Данные о компетенциях не найдены."
+
+    history_text = _format_history(history or [])
 
     prompt = f"""Ты — агент карьерного развития в T&D-системе ИТ-кластера Газпром Нефти.
 Говори как живой человек, который хорошо знает профиль сотрудника — не как корпоративный отчёт.
@@ -68,8 +81,13 @@ KPI за последние периоды:
 Контекст из базы знаний:
 {kb_context}
 
-Запрос сотрудника: {query}"""
+Запрос сотрудника: {query}{history_text}"""
 
     llm = ChatGroq(api_key=settings.groq_api_key, model=settings.groq_model, max_tokens=350)
-    response = await llm.ainvoke(prompt)
-    return response.content
+
+    async def _stream() -> AsyncGenerator[str, None]:
+        async for chunk in llm.astream(prompt):
+            if chunk.content:
+                yield chunk.content
+
+    return _stream(), docs

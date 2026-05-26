@@ -61,3 +61,11 @@ CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
     category UNINDEXED,
     tokenize='unicode61'
 );
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    employee_id TEXT REFERENCES employees(id),
+    role TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+);
