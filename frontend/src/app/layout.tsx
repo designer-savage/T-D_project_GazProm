@@ -11,6 +11,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "T&D Platform — Газпром Нефть ИТ",
   description: "Корпоративная платформа обучения и развития",
+  icons: {
+    icon: "/icon.svg",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

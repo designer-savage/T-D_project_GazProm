@@ -6,7 +6,7 @@ from core.database import init_db
 from core.seed_data import seed
 from routers import chat, employees, career, courses, dashboard
 
-app = FastAPI(title="T&D Platform API", version="0.1.0")
+app = FastAPI(title="T&D Platform API", version="0.1.6")
 
 app.add_middleware(
     CORSMiddleware,
