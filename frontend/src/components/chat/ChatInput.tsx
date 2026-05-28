@@ -1,5 +1,6 @@
 "use client"
 import { useState, KeyboardEvent } from "react"
+import { ArrowUp } from "lucide-react"
 
 interface Props {
   onSend: (text: string) => void
@@ -23,25 +24,45 @@ export default function ChatInput({ onSend, disabled }: Props) {
     }
   }
 
+  const canSend = !!text.trim() && !disabled
+
   return (
-    <div className="border-t border-line-soft bg-canvas-100 px-4 py-3 flex gap-3 items-end">
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKey}
-        placeholder="Задайте вопрос агенту..."
-        disabled={disabled}
-        rows={1}
-        className="flex-1 resize-none bg-surface border border-line rounded-xl px-3 py-2 text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
-        style={{ maxHeight: "120px" }}
-      />
-      <button
-        onClick={handleSend}
-        disabled={disabled || !text.trim()}
-        className="px-4 py-2 bg-accent text-accent-ink rounded-xl text-sm font-medium hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+    <div className="px-4 pb-4 pt-2 flex-shrink-0">
+      <div
+        className={`relative bg-surface border rounded-2xl shadow-xl shadow-black/40 transition-all duration-200 ${
+          canSend
+            ? "border-accent/30 shadow-accent/5"
+            : "border-line"
+        }`}
       >
-        Отправить
-      </button>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder="Задайте вопрос агенту..."
+          disabled={disabled}
+          rows={1}
+          className="w-full resize-none bg-transparent px-4 py-3.5 pr-14 text-sm text-ink
+                     placeholder:text-ink-subtle focus:outline-none disabled:opacity-50
+                     leading-relaxed"
+          style={{ maxHeight: "160px" }}
+        />
+        <button
+          onClick={handleSend}
+          disabled={!canSend}
+          className={`absolute right-3 bottom-3 w-8 h-8 rounded-xl flex items-center justify-center
+                      transition-all duration-150 ${
+                        canSend
+                          ? "bg-accent hover:bg-accent-hover text-white shadow-md shadow-accent/30"
+                          : "bg-canvas-300 text-ink-subtle cursor-not-allowed"
+                      }`}
+        >
+          <ArrowUp size={15} />
+        </button>
+      </div>
+      <p className="text-center text-[11px] text-ink-subtle mt-2">
+        Enter — отправить · Shift+Enter — перенос строки
+      </p>
     </div>
   )
 }

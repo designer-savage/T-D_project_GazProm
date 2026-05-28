@@ -6,11 +6,11 @@ import ChatWindow from "@/components/chat/ChatWindow"
 import { useStream } from "@/hooks/useStream"
 
 const STEPS = [
-  { title: "Получить доступы", desc: "Заявка в ServiceDesk на рабочие системы", done: true },
-  { title: "Инструктаж ИБ", desc: "Обязательный курс по информационной безопасности", done: true },
-  { title: "Знакомство с командой", desc: "1-on-1 с руководителем и коллегами", done: false },
-  { title: "Изучить архитектуру", desc: "Confluence: раздел Architecture Overview", done: false },
-  { title: "Первые задачи", desc: "Взять задачи из бэклога под руководством ментора", done: false },
+  { title: "Получить доступы",   desc: "Заявка в ServiceDesk на рабочие системы",            done: true },
+  { title: "Инструктаж ИБ",      desc: "Обязательный курс по информационной безопасности",    done: true },
+  { title: "Знакомство с командой", desc: "1-on-1 с руководителем и коллегами",               done: false },
+  { title: "Изучить архитектуру", desc: "Confluence: раздел Architecture Overview",            done: false },
+  { title: "Первые задачи",      desc: "Взять задачи из бэклога под руководством ментора",     done: false },
 ]
 
 const EMPLOYEE_ID = process.env.NEXT_PUBLIC_DEMO_EMPLOYEE_ID || "emp_001"
@@ -24,53 +24,55 @@ export default function OnboardingPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header employee={null} />
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 bg-canvas-100">
           <div className="grid grid-cols-5 gap-6 h-full">
             <div className="col-span-2 space-y-4">
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <h3 className="font-semibold text-gray-900 mb-4">Шаги адаптации</h3>
-                <div className="space-y-3">
+              <div className="bg-surface rounded-xl border border-line p-5">
+                <h3 className="font-semibold text-ink mb-4">Шаги адаптации</h3>
+                <div className="space-y-2">
                   {STEPS.map((step, i) => (
                     <div
                       key={i}
                       onClick={() => setActiveStep(i)}
-                      className={`flex gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        activeStep === i ? "bg-blue-50 border border-blue-200" : "hover:bg-gray-50"
+                      className={`flex gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 ${
+                        activeStep === i
+                          ? "bg-accent/10 border border-accent/25"
+                          : "hover:bg-canvas-300 border border-transparent"
                       }`}
                     >
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                           step.done
-                            ? "bg-green-500 text-white"
+                            ? "bg-state-success/20 text-state-success"
                             : i === activeStep
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-200 text-gray-500"
+                            ? "bg-accent text-white"
+                            : "bg-canvas-300 text-ink-muted"
                         }`}
                       >
                         {step.done ? "✓" : i + 1}
                       </div>
                       <div>
-                        <div className={`text-sm font-medium ${step.done ? "text-gray-400 line-through" : "text-gray-900"}`}>
+                        <div className={`text-sm font-medium ${step.done ? "text-ink-subtle line-through" : "text-ink"}`}>
                           {step.title}
                         </div>
-                        <div className="text-xs text-gray-500">{step.desc}</div>
+                        <div className="text-xs text-ink-muted mt-0.5">{step.desc}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-                <p className="text-sm text-blue-800 font-medium mb-1">Ваш ментор</p>
-                <p className="text-sm text-blue-700">Павел Соколов (Lead)</p>
-                <p className="text-xs text-blue-500 mt-1">Встречи: каждый вторник 11:00</p>
+              <div className="bg-accent/10 rounded-xl border border-accent/20 p-4">
+                <p className="text-sm text-accent font-medium mb-1">Ваш ментор</p>
+                <p className="text-sm text-ink">Павел Соколов (Lead)</p>
+                <p className="text-xs text-ink-muted mt-1">Встречи: каждый вторник 11:00</p>
               </div>
             </div>
 
-            <div className="col-span-3 bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
-              <div className="px-5 py-3 border-b border-gray-100">
-                <p className="text-sm font-medium text-gray-700">Задайте вопрос по онбордингу</p>
-                <p className="text-xs text-gray-400">Например: «Как получить доступ к GitLab?»</p>
+            <div className="col-span-3 bg-surface rounded-xl border border-line overflow-hidden flex flex-col">
+              <div className="px-5 py-3.5 border-b border-line">
+                <p className="text-sm font-medium text-ink">Задайте вопрос по онбордингу</p>
+                <p className="text-xs text-ink-muted mt-0.5">Например: «Как получить доступ к GitLab?»</p>
               </div>
               <div className="flex-1 overflow-hidden">
                 <ChatWindow

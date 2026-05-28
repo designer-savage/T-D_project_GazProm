@@ -13,70 +13,70 @@ export default function MessageBubble({ message, isStreaming }: Props) {
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
-      <div className={`max-w-[75%] ${isUser ? "order-2" : "order-1"}`}>
+      <div className={`max-w-[78%] ${isUser ? "order-2" : "order-1"}`}>
         {!isUser && message.agent && (
-          <div className="mb-1.5">
+          <div className="mb-1.5 ml-1">
             <AgentBadge agent={message.agent} />
           </div>
         )}
         <div
           className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
             isUser
-              ? "bg-accent text-accent-ink rounded-br-sm whitespace-pre-wrap"
-              : "bg-surface border border-line text-ink rounded-bl-sm shadow-sm"
+              ? "bg-accent/20 border border-accent/25 text-ink rounded-br-sm"
+              : "bg-surface border border-line text-ink rounded-bl-sm"
           }`}
         >
           {isUser ? (
-            message.content
+            <span className="whitespace-pre-wrap">{message.content}</span>
           ) : (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                em: ({ children }) => <em className="italic">{children}</em>,
-                h1: ({ children }) => <h1 className="text-base font-semibold mt-3 mb-1 first:mt-0">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-sm font-semibold mt-3 mb-1 first:mt-0">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-sm font-semibold mt-2 mb-1 first:mt-0">{children}</h3>,
-                ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
-                li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                code: ({ className, children, ...props }) => {
+                p:          ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong:     ({ children }) => <strong className="font-semibold text-ink">{children}</strong>,
+                em:         ({ children }) => <em className="italic">{children}</em>,
+                h1:         ({ children }) => <h1 className="text-base font-semibold mt-3 mb-1.5 first:mt-0 text-ink">{children}</h1>,
+                h2:         ({ children }) => <h2 className="text-sm font-semibold mt-3 mb-1 first:mt-0 text-ink">{children}</h2>,
+                h3:         ({ children }) => <h3 className="text-sm font-semibold mt-2 mb-1 first:mt-0 text-ink">{children}</h3>,
+                ul:         ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
+                ol:         ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
+                li:         ({ children }) => <li className="leading-relaxed">{children}</li>,
+                code:       ({ className, children, ...props }) => {
                   const isBlock = className?.includes("language-")
                   return isBlock ? (
-                    <code className="block bg-gray-100 rounded-lg p-3 my-2 overflow-x-auto text-xs font-mono whitespace-pre">
+                    <code className="block bg-canvas-300 border border-line rounded-xl p-3 my-2.5 overflow-x-auto text-xs font-mono whitespace-pre text-ink-soft">
                       {children}
                     </code>
                   ) : (
-                    <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                    <code className="bg-canvas-300 border border-line px-1.5 py-0.5 rounded text-xs font-mono text-ink-soft" {...props}>
                       {children}
                     </code>
                   )
                 },
-                pre: ({ children }) => <pre className="my-2">{children}</pre>,
+                pre:        ({ children }) => <pre className="my-2">{children}</pre>,
                 blockquote: ({ children }) => (
-                  <blockquote className="border-l-2 border-gray-300 pl-3 italic text-gray-600 my-2">
+                  <blockquote className="border-l-2 border-accent/40 pl-3 italic text-ink-muted my-2">
                     {children}
                   </blockquote>
                 ),
-                a: ({ href, children }) => (
-                  <a href={href} className="text-blue-600 underline" target="_blank" rel="noreferrer">
+                a:          ({ href, children }) => (
+                  <a href={href} className="text-accent underline underline-offset-2 hover:text-accent-hover" target="_blank" rel="noreferrer">
                     {children}
                   </a>
                 ),
-                hr: () => <hr className="border-gray-200 my-2" />,
-                table: ({ children }) => (
+                hr:         () => <hr className="border-line my-3" />,
+                table:      ({ children }) => (
                   <div className="overflow-x-auto my-2">
                     <table className="text-xs border-collapse w-full">{children}</table>
                   </div>
                 ),
-                th: ({ children }) => (
-                  <th className="border border-gray-200 px-2 py-1 bg-gray-50 font-semibold text-left">
+                th:         ({ children }) => (
+                  <th className="border border-line px-2.5 py-1.5 bg-canvas-300 font-semibold text-left text-ink-soft">
                     {children}
                   </th>
                 ),
-                td: ({ children }) => (
-                  <td className="border border-gray-200 px-2 py-1">{children}</td>
+                td:         ({ children }) => (
+                  <td className="border border-line px-2.5 py-1.5 text-ink-muted">{children}</td>
                 ),
               }}
             >
@@ -84,7 +84,7 @@ export default function MessageBubble({ message, isStreaming }: Props) {
             </ReactMarkdown>
           )}
           {isStreaming && !isUser && (
-            <span className="inline-block w-1 h-4 bg-gray-400 animate-pulse ml-0.5 align-middle" />
+            <span className="inline-block w-0.5 h-4 bg-accent/70 animate-pulse ml-0.5 align-middle rounded-full" />
           )}
         </div>
       </div>

@@ -37,7 +37,7 @@ export default function CareerPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header employee={employee} />
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-canvas-100">
           {track ? (
             <>
               <CareerTrack
@@ -47,19 +47,23 @@ export default function CareerPage() {
               />
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                  <div className="text-2xl font-bold text-blue-600">{employee?.kpi_score ? `${Math.round(employee.kpi_score * 100)}%` : "—"}</div>
-                  <div className="text-sm text-gray-500 mt-1">Средний KPI</div>
+                <div className="bg-surface rounded-xl border border-line p-5">
+                  <div className="text-2xl font-bold text-accent tabular-nums">
+                    {employee?.kpi_score ? `${Math.round(employee.kpi_score * 100)}%` : "—"}
+                  </div>
+                  <div className="text-sm text-ink-muted mt-1">Средний KPI</div>
                 </div>
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                  <div className="text-2xl font-bold text-green-600">{done.length} / {track.competencies.length}</div>
-                  <div className="text-sm text-gray-500 mt-1">Целевых компетенций достигнуто</div>
+                <div className="bg-surface rounded-xl border border-line p-5">
+                  <div className="text-2xl font-bold text-state-success tabular-nums">
+                    {done.length} / {track.competencies.length}
+                  </div>
+                  <div className="text-sm text-ink-muted mt-1">Целевых компетенций достигнуто</div>
                 </div>
               </div>
 
               {gaps.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Разрывы в компетенциях</h3>
+                  <h3 className="font-semibold text-ink mb-3">Разрывы в компетенциях</h3>
                   <div className="grid gap-3">
                     {gaps.map((c) => <SkillGapCard key={c.skill_name} competency={c} />)}
                   </div>
@@ -68,7 +72,7 @@ export default function CareerPage() {
 
               {done.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Достигнутые компетенции</h3>
+                  <h3 className="font-semibold text-ink mb-3">Достигнутые компетенции</h3>
                   <div className="grid gap-3">
                     {done.map((c) => <SkillGapCard key={c.skill_name} competency={c} />)}
                   </div>
@@ -76,7 +80,7 @@ export default function CareerPage() {
               )}
             </>
           ) : (
-            <div className="text-center text-gray-400 py-20">Загрузка...</div>
+            <div className="text-center text-ink-subtle py-20">Загрузка...</div>
           )}
         </main>
       </div>

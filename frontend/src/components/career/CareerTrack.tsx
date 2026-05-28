@@ -4,7 +4,7 @@ const GRADE_LABELS: Record<Grade, string> = {
   junior: "Junior",
   middle: "Middle",
   senior: "Senior",
-  lead: "Lead",
+  lead:   "Lead",
 }
 
 const ALL_GRADES: Grade[] = ["junior", "middle", "senior", "lead"]
@@ -20,17 +20,17 @@ export default function CareerTrack({ currentGrade, targetGrade, estimatedMonths
   const targetIdx = ALL_GRADES.indexOf(targetGrade)
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
+    <div className="bg-surface rounded-xl border border-line p-6">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-900">Карьерный трек</h3>
-        <span className="text-sm text-gray-500">~{estimatedMonths} мес. до следующего грейда</span>
+        <h3 className="font-semibold text-ink">Карьерный трек</h3>
+        <span className="text-sm text-ink-muted">~{estimatedMonths} мес. до следующего грейда</span>
       </div>
-      <div className="flex items-center gap-0 mt-4">
+      <div className="flex items-center gap-0 mt-5">
         {ALL_GRADES.map((grade, idx) => {
-          const isPast = idx < currentIdx
+          const isPast    = idx < currentIdx
           const isCurrent = idx === currentIdx
-          const isTarget = idx === targetIdx && targetIdx !== currentIdx
-          const isActive = idx <= targetIdx
+          const isTarget  = idx === targetIdx && targetIdx !== currentIdx
+          const isActive  = idx <= targetIdx
 
           return (
             <div key={grade} className="flex items-center flex-1">
@@ -38,19 +38,19 @@ export default function CareerTrack({ currentGrade, targetGrade, estimatedMonths
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
                     isCurrent
-                      ? "bg-blue-600 border-blue-600 text-white scale-110"
+                      ? "bg-accent border-accent text-white scale-110 shadow-lg shadow-accent/30"
                       : isTarget
-                      ? "bg-white border-blue-600 text-blue-600"
+                      ? "bg-canvas-100 border-accent text-accent"
                       : isPast
-                      ? "bg-blue-100 border-blue-300 text-blue-600"
-                      : "bg-gray-100 border-gray-300 text-gray-400"
+                      ? "bg-accent/20 border-accent/40 text-accent"
+                      : "bg-canvas-300 border-line text-ink-subtle"
                   }`}
                 >
                   {isPast ? "✓" : grade[0].toUpperCase()}
                 </div>
                 <span
                   className={`mt-1.5 text-xs font-medium ${
-                    isCurrent ? "text-blue-600" : isActive ? "text-gray-700" : "text-gray-400"
+                    isCurrent ? "text-accent" : isActive ? "text-ink-soft" : "text-ink-subtle"
                   }`}
                 >
                   {GRADE_LABELS[grade]}
@@ -58,8 +58,8 @@ export default function CareerTrack({ currentGrade, targetGrade, estimatedMonths
               </div>
               {idx < ALL_GRADES.length - 1 && (
                 <div
-                  className={`flex-1 h-0.5 mx-1 ${
-                    idx < currentIdx ? "bg-blue-400" : idx === currentIdx ? "bg-blue-200" : "bg-gray-200"
+                  className={`flex-1 h-0.5 mx-1 rounded-full ${
+                    idx < currentIdx ? "bg-accent/60" : idx === currentIdx ? "bg-accent/25" : "bg-canvas-300"
                   }`}
                 />
               )}

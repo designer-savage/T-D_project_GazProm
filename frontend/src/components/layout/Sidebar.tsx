@@ -1,12 +1,13 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { MessageSquare, TrendingUp, Rocket, BarChart2, Sparkles, ChevronRight } from "lucide-react"
 
 const NAV = [
-  { href: "/chat", label: "Чат с агентом", icon: "💬" },
-  { href: "/career", label: "Карьерный трек", icon: "📈" },
-  { href: "/onboarding", label: "Онбординг", icon: "🚀" },
-  { href: "/dashboard", label: "Дашборд команды", icon: "📊" },
+  { href: "/chat",       label: "Чат с агентом",    icon: MessageSquare },
+  { href: "/career",     label: "Карьерный трек",    icon: TrendingUp },
+  { href: "/onboarding", label: "Онбординг",         icon: Rocket },
+  { href: "/dashboard",  label: "Дашборд команды",   icon: BarChart2 },
 ]
 
 const PRESETS = [
@@ -24,40 +25,53 @@ export default function Sidebar({ onPreset }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 min-h-screen bg-sidebar text-sidebar-text flex flex-col">
-      <div className="px-6 py-5 border-b border-sidebar-line">
-        <span className="text-lg font-semibold tracking-tight text-white">T&D Platform</span>
-        <span className="block text-xs text-sidebar-muted mt-0.5">Газпром Нефть ИТ</span>
+    <aside className="w-64 min-h-screen bg-sidebar text-sidebar-text flex flex-col border-r border-sidebar-line">
+      <div className="px-5 py-5 border-b border-sidebar-line">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+            <Sparkles size={14} className="text-white" />
+          </div>
+          <div>
+            <span className="text-sm font-semibold tracking-tight text-white">T&D Platform</span>
+            <span className="block text-[11px] text-sidebar-muted leading-tight">Газпром Нефть ИТ</span>
+          </div>
+        </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-              pathname === item.href
-                ? "bg-accent text-accent-ink"
-                : "text-sidebar-text hover:bg-sidebar-elev"
-            }`}
-          >
-            <span>{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
+      <nav className="flex-1 px-3 py-4 space-y-0.5">
+        {NAV.map((item) => {
+          const Icon = item.icon
+          const active = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                active
+                  ? "bg-accent/15 text-accent font-medium"
+                  : "text-sidebar-text hover:bg-sidebar-elev hover:text-white"
+              }`}
+            >
+              <Icon size={16} className="flex-shrink-0" />
+              {item.label}
+            </Link>
+          )
+        })}
       </nav>
 
       {onPreset && (
-        <div className="px-4 py-4 border-t border-sidebar-line">
-          <p className="text-xs text-sidebar-muted mb-2 uppercase tracking-wider">Быстрые запросы</p>
-          <div className="space-y-1.5">
+        <div className="px-3 py-4 border-t border-sidebar-line">
+          <p className="text-[10px] text-sidebar-muted mb-2.5 uppercase tracking-widest px-1">Быстрые запросы</p>
+          <div className="space-y-1">
             {PRESETS.map((p) => (
               <button
                 key={p}
                 onClick={() => onPreset(p)}
-                className="w-full text-left text-xs text-sidebar-text hover:text-white hover:bg-sidebar-elev px-2 py-1.5 rounded transition-colors"
+                className="w-full text-left text-xs text-sidebar-text hover:text-white hover:bg-sidebar-elev
+                           px-3 py-2 rounded-lg transition-all duration-150 flex items-center justify-between group"
               >
-                {p}
+                <span className="leading-snug">{p}</span>
+                <ChevronRight size={12} className="flex-shrink-0 opacity-0 group-hover:opacity-40 transition-opacity ml-1" />
               </button>
             ))}
           </div>

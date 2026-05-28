@@ -11,7 +11,7 @@ const GRADE_COLORS: Record<string, string> = {
   junior: "bg-state-warn/15 text-amber-700",
   middle: "bg-accent/15 text-accent",
   senior: "bg-state-success/15 text-state-success",
-  lead: "bg-purple-100 text-purple-700",
+  lead: "bg-state-success/15 text-state-success",
 }
 
 function KpiBar({ score }: { score: number | null }) {
@@ -61,7 +61,7 @@ export default function TeamProgress({ members }: { members: TeamMember[] }) {
           </thead>
           <tbody className="divide-y divide-line-soft">
             {members.map((m) => (
-              <tr key={m.id} className={`hover:bg-canvas-100/50 transition-colors ${m.risk_flag ? "bg-red-50/40" : ""}`}>
+              <tr key={m.id} className={`hover:bg-canvas-100/50 transition-colors ${m.risk_flag ? "bg-state-danger/5" : ""}`}>
                 <td className="px-6 py-3.5">
                   <div className="font-medium text-ink">{m.name}</div>
                   <div className="text-xs text-ink-subtle">{m.department}</div>
@@ -88,7 +88,7 @@ export default function TeamProgress({ members }: { members: TeamMember[] }) {
                 </td>
                 <td className="px-6 py-3.5">
                   {m.risk_flag ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-state-danger font-medium bg-red-50 px-2 py-0.5 rounded">
+                    <span className="inline-flex items-center gap-1 text-xs text-state-danger font-medium bg-state-danger/10 px-2 py-0.5 rounded">
                       ⚠ Отстаёт
                     </span>
                   ) : (
