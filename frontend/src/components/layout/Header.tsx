@@ -2,10 +2,11 @@
 import { Employee } from "@/lib/types"
 
 const GRADE_LABELS: Record<string, string> = {
-  junior: "Junior",
-  middle: "Middle",
-  senior: "Senior",
-  lead:   "Lead",
+  junior:    "Junior",
+  middle:    "Middle",
+  senior:    "Senior",
+  lead:      "Lead",
+  principal: "Principal",
 }
 
 interface HeaderProps {

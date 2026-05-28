@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MessageSquare, TrendingUp, Rocket, BarChart2, Sparkles, ChevronRight } from "lucide-react"
+import { useProfile } from "@/context/ProfileContext"
 
 const NAV = [
   { href: "/chat",       label: "Чат с агентом",    icon: MessageSquare },
@@ -10,11 +11,18 @@ const NAV = [
   { href: "/dashboard",  label: "Дашборд команды",   icon: BarChart2 },
 ]
 
-const PRESETS = [
-  "Хочу стать тимлидом через год",
-  "Что пройти за квартал?",
-  "Как оформить командировку?",
-  "Что нужно для перехода на Senior?",
+const PRESETS_EMPLOYEE = [
+  "Что нужно для перехода на Lead?",
+  "Какие курсы пройти в этом квартале?",
+  "Как прокачать System Design?",
+  "Оцени мой карьерный прогресс",
+]
+
+const PRESETS_MANAGER = [
+  "Как развить навыки управления командой?",
+  "Какие компетенции нужны Principal-инженеру?",
+  "Как выстроить систему 1-on-1?",
+  "Что почитать по архитектурным решениям?",
 ]
 
 interface SidebarProps {
@@ -23,6 +31,8 @@ interface SidebarProps {
 
 export default function Sidebar({ onPreset }: SidebarProps) {
   const pathname = usePathname()
+  const { isManager } = useProfile()
+  const PRESETS = isManager ? PRESETS_MANAGER : PRESETS_EMPLOYEE
 
   return (
     <aside className="w-64 min-h-screen bg-sidebar text-sidebar-text flex flex-col border-r border-sidebar-line">

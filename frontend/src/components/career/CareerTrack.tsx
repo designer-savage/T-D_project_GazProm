@@ -1,13 +1,14 @@
 import { Grade } from "@/lib/types"
 
 const GRADE_LABELS: Record<Grade, string> = {
-  junior: "Junior",
-  middle: "Middle",
-  senior: "Senior",
-  lead:   "Lead",
+  junior:    "Junior",
+  middle:    "Middle",
+  senior:    "Senior",
+  lead:      "Lead",
+  principal: "Principal",
 }
 
-const ALL_GRADES: Grade[] = ["junior", "middle", "senior", "lead"]
+const ALL_GRADES: Grade[] = ["junior", "middle", "senior", "lead", "principal"]
 
 interface Props {
   currentGrade: Grade

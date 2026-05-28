@@ -4,18 +4,27 @@ import Sidebar from "@/components/layout/Sidebar"
 import Header from "@/components/layout/Header"
 import ChatWindow from "@/components/chat/ChatWindow"
 import { useStream } from "@/hooks/useStream"
+import { useProfile } from "@/context/ProfileContext"
 
-const STEPS = [
-  { title: "Получить доступы",   desc: "Заявка в ServiceDesk на рабочие системы",            done: true },
-  { title: "Инструктаж ИБ",      desc: "Обязательный курс по информационной безопасности",    done: true },
-  { title: "Знакомство с командой", desc: "1-on-1 с руководителем и коллегами",               done: false },
-  { title: "Изучить архитектуру", desc: "Confluence: раздел Architecture Overview",            done: false },
-  { title: "Первые задачи",      desc: "Взять задачи из бэклога под руководством ментора",     done: false },
+const STEPS_EMPLOYEE = [
+  { title: "Получить доступы",      desc: "Заявка в ServiceDesk на рабочие системы",                    done: true },
+  { title: "Инструктаж ИБ",         desc: "Обязательный курс по информационной безопасности",            done: true },
+  { title: "Знакомство с командой", desc: "1-on-1 с руководителем и коллегами",                          done: false },
+  { title: "Изучить архитектуру",   desc: "Confluence: раздел Architecture Overview",                    done: false },
+  { title: "Первые задачи",         desc: "Взять задачи из бэклога под руководством ментора",             done: false },
 ]
 
-const EMPLOYEE_ID = process.env.NEXT_PUBLIC_DEMO_EMPLOYEE_ID || "emp_001"
+const STEPS_MANAGER = [
+  { title: "Настроить доступы",         desc: "Доступ к управленческим системам и дашбордам команды",    done: true },
+  { title: "Онбординг лида",            desc: "Roadmap лида в корпоративной базе знаний",                done: true },
+  { title: "1-on-1 с командой",         desc: "Индивидуальные встречи с каждым из разработчиков",        done: false },
+  { title: "План развития команды",     desc: "Сформировать IDP для каждого сотрудника",                 done: false },
+  { title: "Синхронизация со смежными", desc: "Встречи с лидами соседних команд",                        done: false },
+]
 
 export default function OnboardingPage() {
+  const { isManager, currentId } = useProfile()
+  const STEPS = isManager ? STEPS_MANAGER : STEPS_EMPLOYEE
   const [activeStep, setActiveStep] = useState(2)
   const { messages, isStreaming, sendMessage } = useStream()
 
@@ -62,23 +71,35 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div className="bg-accent/10 rounded-xl border border-accent/20 p-4">
-                <p className="text-sm text-accent font-medium mb-1">Ваш ментор</p>
-                <p className="text-sm text-ink">Павел Соколов (Lead)</p>
-                <p className="text-xs text-ink-muted mt-1">Встречи: каждый вторник 11:00</p>
-              </div>
+              {isManager ? (
+                <div className="bg-accent/10 rounded-xl border border-accent/20 p-4">
+                  <p className="text-sm text-accent font-medium mb-1">Product Owner</p>
+                  <p className="text-sm text-ink">Алексей Громов</p>
+                  <p className="text-xs text-ink-muted mt-1">Sync: каждый понедельник 10:00</p>
+                </div>
+              ) : (
+                <div className="bg-accent/10 rounded-xl border border-accent/20 p-4">
+                  <p className="text-sm text-accent font-medium mb-1">Ваш ментор</p>
+                  <p className="text-sm text-ink">Павел Соколов (Lead)</p>
+                  <p className="text-xs text-ink-muted mt-1">Встречи: каждый вторник 11:00</p>
+                </div>
+              )}
             </div>
 
             <div className="col-span-3 bg-surface rounded-xl border border-line overflow-hidden flex flex-col">
               <div className="px-5 py-3.5 border-b border-line">
                 <p className="text-sm font-medium text-ink">Задайте вопрос по онбордингу</p>
-                <p className="text-xs text-ink-muted mt-0.5">Например: «Как получить доступ к GitLab?»</p>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  {isManager
+                    ? "Например: «Как выстроить первые 1-on-1 с командой?»"
+                    : "Например: «Как получить доступ к GitLab?»"}
+                </p>
               </div>
               <div className="flex-1 overflow-hidden">
                 <ChatWindow
                   messages={messages}
                   isStreaming={isStreaming}
-                  onSend={(text) => sendMessage(text, EMPLOYEE_ID)}
+                  onSend={(text) => sendMessage(text, currentId)}
                 />
               </div>
             </div>

@@ -6,28 +6,31 @@ import CareerTrack from "@/components/career/CareerTrack"
 import SkillGapCard from "@/components/career/SkillGapCard"
 import { api } from "@/lib/api"
 import { Employee, CareerTrack as CareerTrackType } from "@/lib/types"
+import { useProfile } from "@/context/ProfileContext"
 import { mockEmployee, mockCareer } from "@/mock/employee"
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true"
-const EMPLOYEE_ID = process.env.NEXT_PUBLIC_DEMO_EMPLOYEE_ID || "emp_001"
 
 export default function CareerPage() {
   const [employee, setEmployee] = useState<Employee | null>(null)
   const [track, setTrack] = useState<CareerTrackType | null>(null)
+  const { currentId } = useProfile()
 
   useEffect(() => {
+    setEmployee(null)
+    setTrack(null)
     if (USE_MOCK) {
       setEmployee(mockEmployee)
       setTrack(mockCareer)
       return
     }
     Promise.all([
-      api.getEmployee(EMPLOYEE_ID),
-      api.getCareerTrack(EMPLOYEE_ID),
+      api.getEmployee(currentId),
+      api.getCareerTrack(currentId),
     ])
       .then(([emp, t]) => { setEmployee(emp); setTrack(t) })
       .catch(() => { setEmployee(mockEmployee); setTrack(mockCareer) })
-  }, [])
+  }, [currentId])
 
   const gaps = track?.competencies.filter((c) => c.gap > 0) ?? []
   const done = track?.competencies.filter((c) => c.gap === 0) ?? []

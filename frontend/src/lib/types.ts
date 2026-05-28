@@ -1,5 +1,5 @@
 export type Role = "employee" | "manager"
-export type Grade = "junior" | "middle" | "senior" | "lead"
+export type Grade = "junior" | "middle" | "senior" | "lead" | "principal"
 export type AgentType = "career" | "learning" | "onboarding"
 
 export interface Employee {

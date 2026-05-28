@@ -41,6 +41,10 @@ COMPETENCIES = [
     ("emp_008", "SQL", 3, 4, 1),
     ("emp_008", "Python", 2, 4, 2),
     ("emp_008", "Airflow", 1, 3, 2),
+    ("mgr_001", "Team Leadership", 4, 5, 1),
+    ("mgr_001", "System Architecture", 4, 5, 1),
+    ("mgr_001", "Strategic Planning", 2, 5, 3),
+    ("mgr_001", "People Management", 4, 5, 1),
 ]
 
 KPI_RECORDS = [
@@ -55,6 +59,8 @@ KPI_RECORDS = [
     ("emp_006", "Q1 2025", 0.92, "technical", '{"tasks_done": 18, "bugs": 0}'),
     ("emp_007", "Q1 2025", 0.55, "technical", '{"tasks_done": 4, "bugs": 5}'),
     ("emp_008", "Q1 2025", 0.74, "technical", '{"tasks_done": 9, "bugs": 2}'),
+    ("mgr_001", "Q1 2025", 0.91, "management", '{"team_kpi_avg": 0.74, "team_size": 7}'),
+    ("mgr_001", "Q4 2024", 0.88, "management", '{"team_kpi_avg": 0.72, "team_size": 7}'),
 ]
 
 COURSES = [

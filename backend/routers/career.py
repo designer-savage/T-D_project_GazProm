@@ -4,8 +4,8 @@ from core.config import settings
 
 router = APIRouter(prefix="/career", tags=["career"])
 
-GRADE_ORDER = ["junior", "middle", "senior", "lead"]
-GRADE_MONTHS = {"junior": 18, "middle": 12, "senior": 18, "lead": 0}
+GRADE_ORDER = ["junior", "middle", "senior", "lead", "principal"]
+GRADE_MONTHS = {"junior": 18, "middle": 12, "senior": 18, "lead": 24, "principal": 0}
 
 
 @router.get("/{employee_id}")

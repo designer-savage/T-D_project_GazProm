@@ -16,6 +16,8 @@
 3. **Агент обучения** подбирает конкретные курсы из каталога под выявленные пробелы
 4. Оба ответа стримятся в чат через SSE, история диалога сохраняется между сессиями
 
+Интерфейс **адаптируется под профиль**: при переключении роли (Senior ↔ Lead) меняются быстрые запросы в сайдбаре, шаги онбординга и карьерный трек.
+
 ---
 
 ## Агенты
@@ -183,6 +185,7 @@ docker compose down -v && docker compose up
 │   └── src/
 │       ├── app/         # /chat, /career, /onboarding, /dashboard
 │       ├── components/  # layout, chat, career, dashboard
+│       ├── context/     # ProfileContext.tsx — глобальный state профиля
 │       ├── hooks/       # useStream.ts — SSE-клиент с историей
 │       ├── lib/         # api.ts, types.ts
 │       └── mock/        # employee.ts — данные для режима без бэкенда
