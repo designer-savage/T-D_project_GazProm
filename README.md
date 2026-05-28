@@ -4,6 +4,22 @@
 
 ---
 
+## Скриншоты
+
+<p align="center">
+  <img src="screenshots/scrs-chat.png" width="100%" alt="Чат с AI-агентами" />
+</p>
+
+<p align="center">
+  <img src="screenshots/scrs-career.png" width="32%" alt="Карьерный трек" />
+  &nbsp;
+  <img src="screenshots/scrs-dashboard.png" width="32%" alt="Dashboard команды" />
+  &nbsp;
+  <img src="screenshots/scrs-onboarding.png" width="32%" alt="Онбординг" />
+</p>
+
+---
+
 ## Как это работает
 
 Сотрудник пишет что-то вроде:
