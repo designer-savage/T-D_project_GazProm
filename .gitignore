@@ -19,3 +19,8 @@ frontend/tsconfig.tsbuildinfo
 
 # OS
 .DS_Store
+
+# Internal docs
+IMPROVE.md
+PERSPECTIVES.md
+useless/

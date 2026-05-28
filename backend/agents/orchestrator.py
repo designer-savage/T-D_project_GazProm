@@ -1,7 +1,6 @@
 import aiosqlite
 from typing import AsyncGenerator
-from langchain_groq import ChatGroq
-from core.config import settings
+from core.config import settings, get_llm
 from agents import learning_agent, career_agent, onboarding_agent
 from agents import reviewer
 
@@ -41,7 +40,7 @@ async def _fetch_employee(employee_id: str) -> dict:
 
 
 async def _classify_intent(query: str) -> str:
-    llm = ChatGroq(api_key=settings.groq_api_key, model=settings.groq_model, max_tokens=5)
+    llm = get_llm(max_tokens=5)
     response = await llm.ainvoke(_CLASSIFY_PROMPT.format(query=query))
     intent = response.content.strip().lower().split()[0] if response.content.strip() else "mixed"
     return intent if intent in _VALID_INTENTS else "mixed"

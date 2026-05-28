@@ -1,7 +1,6 @@
 from typing import AsyncGenerator
-from langchain_groq import ChatGroq
 from rag.retriever import retrieve, format_context
-from core.config import settings
+from core.config import settings, get_llm
 
 
 def _format_history(history: list[dict]) -> str:
@@ -29,7 +28,7 @@ async def run(query: str, employee_context: dict, history: list[dict] | None = N
 
 Вопрос сотрудника: {query}{history_text}"""
 
-    llm = ChatGroq(api_key=settings.groq_api_key, model=settings.groq_model, max_tokens=300)
+    llm = get_llm(max_tokens=300)
 
     async def _stream() -> AsyncGenerator[str, None]:
         async for chunk in llm.astream(prompt):
