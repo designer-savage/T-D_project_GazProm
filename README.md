@@ -35,7 +35,7 @@
 
 | Слой | Технологии |
 |---|---|
-| LLM | Groq API (`llama-3.3-70b-versatile`) |
+| LLM | Groq API (`llama-3.3-70b-versatile`) или локальный Ollama |
 | Бэкенд | Python 3.11+, FastAPI, LangChain, aiosqlite |
 | RAG | SQLite FTS5 (без эмбеддингов, полнотекстовый поиск) |
 | Фронтенд | Next.js 14, React 18, TypeScript, Tailwind CSS |
@@ -141,6 +141,11 @@ DATABASE_URL=./db/td_demo.db
 CORS_ORIGINS=http://localhost:3000
 SEED_DB=true
 DEBUG=false
+
+# Локальный Ollama (USE_OLLAMA=true отключает Groq)
+USE_OLLAMA=false
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest
 ```
 
 **`frontend/.env.local`** (опционально):
@@ -149,6 +154,40 @@ DEBUG=false
 NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_USE_MOCK=false   # true — работает без бэкенда, данные из mock/employee.ts
 ```
+
+---
+
+## Локальные модели через Ollama
+
+Вместо Groq можно запустить любую модель локально через [Ollama](https://ollama.com).
+
+### Требования
+
+- Ollama 0.24+: [ollama.com/download](https://ollama.com/download)
+- RAM ≥ 12 GB (для YandexGPT-5-Lite-8B)
+
+### Запуск
+
+```bash
+ollama serve &
+ollama pull yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest
+```
+
+В `backend/.env`:
+
+```env
+USE_OLLAMA=true
+```
+
+Чтобы вернуться на Groq — `USE_OLLAMA=false`. Менять код не нужно.
+
+### Рекомендуемые русскоязычные модели
+
+| Модель | Размер | Особенности |
+|---|---|---|
+| `yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest` | ~8 GB | Быстрая, хороший русский |
+| `Elephanterus/T-lite-it-1.0:7.6B-Q8_0` | ~8 GB | T-Lite от Т-банка |
+| `t-tech/T-pro-it-2.0:q4_K_M` | ~20 GB | T-Pro, выше качество, нужно ≥ 24 GB RAM |
 
 ---
 
