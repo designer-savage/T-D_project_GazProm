@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Cross-platform dev launcher: Linux, macOS, Windows."""
 import os
+import signal
 import sys
 import platform
 import shutil
@@ -246,40 +247,58 @@ def main():
     print(f"  frontend → http://localhost:3000")
     print(f"\nCtrl+C для остановки\n")
 
+    popen_kwargs = {} if IS_WINDOWS else {"preexec_fn": os.setsid}
+
     backend_proc = subprocess.Popen(
         [str(python_bin), "main.py"],
         cwd=str(BACKEND),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        **popen_kwargs,
     )
     frontend_proc = subprocess.Popen(
         ["npm", "run", "dev", "--prefix", str(FRONTEND)],
         cwd=str(ROOT),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        **popen_kwargs,
     )
 
     threading.Thread(target=stream, args=(backend_proc,  print_backend),  daemon=True).start()
     threading.Thread(target=stream, args=(frontend_proc, print_frontend), daemon=True).start()
 
+    def kill_proc(proc: subprocess.Popen):
+        if proc.poll() is not None:
+            return
+        if IS_WINDOWS:
+            proc.terminate()
+        else:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+
+    def shutdown(reason: str | None = None):
+        if reason:
+            print_error(reason)
+        print("\nОстанавливаю...")
+        kill_proc(backend_proc)
+        kill_proc(frontend_proc)
+        if ollama_proc:
+            print_ollama("Останавливаю ollama serve...")
+            kill_proc(ollama_proc)
+
     try:
         while True:
             if backend_proc.poll() is not None:
-                print_error("Бэкенд завершился неожиданно")
-                frontend_proc.terminate()
+                shutdown("Бэкенд завершился неожиданно")
                 break
             if frontend_proc.poll() is not None:
-                print_error("Фронтенд завершился неожиданно")
-                backend_proc.terminate()
+                shutdown("Фронтенд завершился неожиданно")
                 break
             threading.Event().wait(0.5)
     except KeyboardInterrupt:
-        print("\nОстанавливаю...")
-        backend_proc.terminate()
-        frontend_proc.terminate()
-        if ollama_proc:
-            print_ollama("Останавливаю ollama serve...")
-            ollama_proc.terminate()
+        shutdown()
 
     backend_proc.wait()
     frontend_proc.wait()
