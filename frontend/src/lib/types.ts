@@ -49,14 +49,32 @@ export interface TeamMember {
   id: string
   name: string
   grade: Grade
+  department: string
   courses_completed: number
+  courses_in_progress: number
   courses_total: number
   avg_progress_pct: number
+  kpi_score: number | null
   risk_flag: boolean
+}
+
+export interface SkillGap {
+  skill_name: string
+  total_gap: number
+  affected: number
+}
+
+export interface CoursesStats {
+  completed: number
+  in_progress: number
+  not_started: number
 }
 
 export interface DashboardData {
   team_size: number
   avg_progress: number
+  avg_kpi: number
   members: TeamMember[]
+  skill_gaps: SkillGap[]
+  courses_stats: CoursesStats
 }

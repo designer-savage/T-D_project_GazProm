@@ -6,6 +6,9 @@ import platform
 import shutil
 import subprocess
 import threading
+import time
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -14,16 +17,16 @@ FRONTEND = ROOT / "frontend"
 
 IS_WINDOWS = platform.system() == "Windows"
 
-# ANSI colours
 if IS_WINDOWS:
     import ctypes
     ctypes.windll.kernel32.SetConsoleMode(
         ctypes.windll.kernel32.GetStdHandle(-11), 7
     )
-BLUE  = "\033[94m"
-GREEN = "\033[92m"
-RED   = "\033[91m"
-RESET = "\033[0m"
+BLUE   = "\033[94m"
+GREEN  = "\033[92m"
+YELLOW = "\033[93m"
+RED    = "\033[91m"
+RESET  = "\033[0m"
 
 
 def print_backend(msg: str):
@@ -31,6 +34,9 @@ def print_backend(msg: str):
 
 def print_frontend(msg: str):
     print(f"{GREEN}[frontend]{RESET} {msg}", flush=True)
+
+def print_ollama(msg: str):
+    print(f"{YELLOW}[ollama]{RESET}   {msg}", flush=True)
 
 def print_error(msg: str):
     print(f"{RED}[error]{RESET}    {msg}", flush=True)
@@ -58,7 +64,118 @@ def check_node():
         sys.exit(1)
 
 
-def setup_env():
+def _set_env_var(key: str, value: str):
+    """Обновляет или добавляет переменную в backend/.env."""
+    env_file = BACKEND / ".env"
+    content = env_file.read_text(encoding="utf-8")
+    lines = content.splitlines()
+    found = False
+    new_lines = []
+    for line in lines:
+        if line.startswith(f"{key}=") or line.startswith(f"# {key}="):
+            new_lines.append(f"{key}={value}")
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f"{key}={value}")
+    env_file.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
+
+def _ollama_is_running(base_url: str = "http://localhost:11434") -> bool:
+    try:
+        urllib.request.urlopen(f"{base_url}/api/tags", timeout=2)
+        return True
+    except Exception:
+        return False
+
+
+def _ollama_model_exists(model: str, base_url: str = "http://localhost:11434") -> bool:
+    import json
+    try:
+        with urllib.request.urlopen(f"{base_url}/api/tags", timeout=5) as resp:
+            data = json.loads(resp.read())
+        names = [m.get("name", "") for m in data.get("models", [])]
+        # сравниваем без тега :latest для гибкости
+        model_base = model.split(":")[0]
+        return any(n == model or n.startswith(model_base) for n in names)
+    except Exception:
+        return False
+
+
+def setup_ollama() -> tuple[bool, "subprocess.Popen | None"]:
+    """
+    Проверяет Ollama, при необходимости запускает сервис и скачивает модель.
+    Возвращает (ollama_ready, proc_or_None).
+    proc — только если мы сами его запустили (нужен для cleanup).
+    """
+    if not shutil.which("ollama"):
+        print_ollama("Ollama не установлен — будет использован Groq")
+        return False, None
+
+    # Читаем модель из .env
+    env_file = BACKEND / ".env"
+    ollama_model = "yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest"
+    ollama_base_url = "http://localhost:11434"
+    if env_file.exists():
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            if line.startswith("OLLAMA_MODEL="):
+                ollama_model = line.split("=", 1)[1].strip()
+            if line.startswith("OLLAMA_BASE_URL="):
+                ollama_base_url = line.split("=", 1)[1].strip()
+
+    ollama_proc = None
+    we_started = False
+
+    if _ollama_is_running(ollama_base_url):
+        print_ollama("Сервис уже запущен")
+    else:
+        print_ollama("Запускаю ollama serve...")
+        ollama_proc = subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        we_started = True
+
+        # Ждём готовности — до 15 секунд
+        for i in range(30):
+            time.sleep(0.5)
+            if _ollama_is_running(ollama_base_url):
+                print_ollama("Сервис готов")
+                break
+        else:
+            print_error("Ollama не ответил за 15 сек — переключаюсь на Groq")
+            ollama_proc.terminate()
+            return False, None
+
+    # Проверяем наличие модели
+    if _ollama_model_exists(ollama_model, ollama_base_url):
+        print_ollama(f"Модель {ollama_model} уже скачана")
+    else:
+        print_ollama(f"Скачиваю модель {ollama_model} (может занять несколько минут)...")
+        pull_proc = subprocess.Popen(
+            ["ollama", "pull", ollama_model],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        for raw in iter(pull_proc.stdout.readline, b""):
+            line = raw.decode("utf-8", errors="replace").rstrip()
+            if line:
+                print_ollama(line)
+        pull_proc.wait()
+        if pull_proc.returncode != 0:
+            print_error("Не удалось скачать модель — переключаюсь на Groq")
+            if we_started and ollama_proc:
+                ollama_proc.terminate()
+            return False, None
+        print_ollama("Модель готова")
+
+    _set_env_var("USE_OLLAMA", "true")
+    return True, ollama_proc if we_started else None
+
+
+def setup_env(ollama_ready: bool):
     env_file = BACKEND / ".env"
     env_example = BACKEND / ".env.example"
 
@@ -67,14 +184,17 @@ def setup_env():
             shutil.copy(env_example, env_file)
             print_backend("Создан backend/.env из .env.example")
         else:
-            print_error("Нет backend/.env — создай его с GROQ_API_KEY")
+            print_error("Нет backend/.env — создай его")
             sys.exit(1)
 
-    content = env_file.read_text(encoding="utf-8")
-    if "GROQ_API_KEY=your_groq_api_key_here" in content or "GROQ_API_KEY=\n" in content:
-        print_error("Впиши реальный GROQ_API_KEY в backend/.env")
-        print_error("Ключ бесплатно: https://console.groq.com")
-        sys.exit(1)
+    if not ollama_ready:
+        # Если Ollama недоступен, Groq обязателен
+        content = env_file.read_text(encoding="utf-8")
+        if "GROQ_API_KEY=your_groq_api_key_here" in content or "GROQ_API_KEY=\n" in content or "GROQ_API_KEY=" not in content:
+            print_error("Ollama недоступен и GROQ_API_KEY не задан в backend/.env")
+            print_error("Впиши ключ (бесплатно: https://console.groq.com) или установи Ollama")
+            sys.exit(1)
+        _set_env_var("USE_OLLAMA", "false")
 
 
 def setup_venv() -> Path:
@@ -112,11 +232,17 @@ def main():
 
     check_python()
     check_node()
-    setup_env()
+
+    # Ollama проверяем до setup_env — она влияет на проверку GROQ_API_KEY
+    ollama_ready, ollama_proc = setup_ollama()
+
+    setup_env(ollama_ready)
     python_bin = setup_venv()
     setup_frontend()
 
-    print(f"\n  backend  → http://localhost:8000")
+    provider = "Ollama (локально)" if ollama_ready else "Groq API"
+    print(f"\n  LLM      → {provider}")
+    print(f"  backend  → http://localhost:8000")
     print(f"  frontend → http://localhost:3000")
     print(f"\nCtrl+C для остановки\n")
 
@@ -151,9 +277,14 @@ def main():
         print("\nОстанавливаю...")
         backend_proc.terminate()
         frontend_proc.terminate()
+        if ollama_proc:
+            print_ollama("Останавливаю ollama serve...")
+            ollama_proc.terminate()
 
     backend_proc.wait()
     frontend_proc.wait()
+    if ollama_proc:
+        ollama_proc.wait()
 
 
 if __name__ == "__main__":

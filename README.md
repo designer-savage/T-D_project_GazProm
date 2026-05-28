@@ -27,7 +27,7 @@
 | **Агент обучения** | Подбирает курсы, строит траекторию | `courses`, `learning_progress` |
 | **Агент онбординга** | Отвечает на вопросы по политикам и процессам | `knowledge_documents` (FTS5 RAG) |
 
-Классификация запроса — один быстрый LLM-вызов (~200 мс), определяет одно из четырёх намерений: `career`, `learning`, `onboarding`, `mixed`. При `mixed` запускаются агент карьеры и агент обучения последовательно.
+Классификация запроса — один быстрый LLM-вызов (~200 мс): `career`, `learning`, `onboarding` или `mixed`. При `mixed` запускаются агент карьеры и агент обучения последовательно.
 
 ---
 
@@ -35,7 +35,7 @@
 
 | Слой | Технологии |
 |---|---|
-| LLM | Groq API (`llama-3.3-70b-versatile`) или локальный Ollama |
+| LLM | Ollama (локально, приоритет) → Groq API (запасной) |
 | Бэкенд | Python 3.11+, FastAPI, LangChain, aiosqlite |
 | RAG | SQLite FTS5 (без эмбеддингов, полнотекстовый поиск) |
 | Фронтенд | Next.js 14, React 18, TypeScript, Tailwind CSS |
@@ -45,105 +45,76 @@
 
 ---
 
-## Запуск через Docker (рекомендуется)
-
-Работает одинаково на Linux, macOS и Windows. Docker берёт на себя все зависимости.
+## Запуск локально
 
 ### Требования
 
-- [Docker Desktop](https://docs.docker.com/get-docker/) 24+ (включает Docker Compose v2)
+- Python **3.11+** → [python.org](https://www.python.org/downloads/)
+- Node.js **18+** → [nodejs.org](https://nodejs.org/)
+- Ollama (опционально, но рекомендуется) → [ollama.com/download](https://ollama.com/download)
 
-Проверить установку:
-```bash
-docker --version
-docker compose version
-```
-
-### 1. Получить исходники
-
-**Через git:**
-```bash
-git clone https://github.com/designer-savage/T-D_project_GazProm.git
-cd T-D_project_GazProm
-```
-
-**Или скачать архив** с [последнего релиза](https://github.com/designer-savage/T-D_project_GazProm/releases/latest) и распаковать.
-
-### 2. Настроить окружение
-
-**Linux / macOS:**
-```bash
-cp backend/.env.example backend/.env
-```
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item backend\.env.example backend\.env
-```
-
-**Windows (cmd):**
-```cmd
-copy backend\.env.example backend\.env
-```
-
-Открыть `backend/.env` и вписать ключ Groq API:
-
-```env
-GROQ_API_KEY=your_groq_api_key_here
-```
-
-Ключ можно получить бесплатно на [console.groq.com](https://console.groq.com).
-
-### 3. Запустить
+### Одной командой
 
 ```bash
-docker compose up --build
+python start.py
 ```
 
-Первая сборка занимает 3–5 минут. Последующие запуски без `--build` стартуют за секунды.
+Скрипт делает всё автоматически:
 
-### 4. Открыть
+- Если **Ollama установлен** — запускает `ollama serve`, скачивает модель если нужно, выставляет `USE_OLLAMA=true`
+- Если **Ollama не установлен** — падает на Groq, требует `GROQ_API_KEY` в `backend/.env`
+- Создаёт venv, ставит зависимости, поднимает бэкенд и фронтенд параллельно
+
+Логи выводятся с цветными префиксами `[ollama]` / `[backend]` / `[frontend]`. Остановка — Ctrl+C.
 
 | | URL |
 |---|---|
 | Приложение | http://localhost:3000 |
 | API / Swagger | http://localhost:8000/docs |
 
----
+### Groq как запасной вариант
 
-## Запуск локально (без Docker)
-
-### Требования
-
-- Python **3.11+** → [python.org](https://www.python.org/downloads/)
-- Node.js **18+** → [nodejs.org](https://nodejs.org/)
-
-### Linux / macOS / Windows — одной командой
+Если Ollama не установлен или недоступен, нужен ключ Groq:
 
 ```bash
-python start.py
+cp backend/.env.example backend/.env
+# вписать GROQ_API_KEY в backend/.env
 ```
 
-Скрипт определяет платформу автоматически, создаёт venv, устанавливает зависимости и поднимает бэкенд с фронтендом параллельно. Логи обоих процессов выводятся с цветными префиксами `[backend]` / `[frontend]`. Остановка — Ctrl+C.
+Ключ бесплатно: [console.groq.com](https://console.groq.com).
 
-При первом запуске, если `backend/.env` не существует, скрипт создаст его из `.env.example` и попросит вписать ключ. После этого запустить повторно.
+Если оба провайдера настроены — Ollama всегда в приоритете. При падении Ollama во время работы бэкенд автоматически переключается на Groq без перезапуска.
 
-FastAPI поднимается на `http://localhost:8000`, Next.js — на `http://localhost:3000`. При старте бэкенда автоматически создаётся SQLite и заливаются seed-данные: 10 сотрудников, 20 курсов, 15 документов базы знаний.
+---
 
-### Переменные окружения
+## Запуск через Docker
+
+```bash
+cp backend/.env.example backend/.env   # вписать GROQ_API_KEY
+docker compose up --build              # первый запуск (~3–5 мин)
+docker compose up                      # последующие запуски
+docker compose down -v                 # остановить + сбросить БД
+```
+
+> В Docker используется только Groq (Ollama внутри контейнера не поддерживается).
+
+---
+
+## Переменные окружения
 
 **`backend/.env`** (создать из `.env.example`):
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
+
 DATABASE_URL=./db/td_demo.db
 CORS_ORIGINS=http://localhost:3000
 SEED_DB=true
 DEBUG=false
 
-# Локальный Ollama (USE_OLLAMA=true отключает Groq)
-USE_OLLAMA=false
+# start.py выставляет автоматически по результату проверки Ollama
+USE_OLLAMA=true
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest
 ```
@@ -157,70 +128,39 @@ NEXT_PUBLIC_USE_MOCK=false   # true — работает без бэкенда, 
 
 ---
 
-## Локальные модели через Ollama
+## Локальные модели
 
-Вместо Groq можно запустить любую модель локально через [Ollama](https://ollama.com).
+`start.py` автоматически скачивает `yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest` при первом запуске. Модель можно сменить через `OLLAMA_MODEL` в `backend/.env`.
 
-### Требования
-
-- Ollama 0.24+: [ollama.com/download](https://ollama.com/download)
-- RAM ≥ 12 GB (для YandexGPT-5-Lite-8B)
-
-### Запуск
-
-```bash
-ollama serve &
-ollama pull yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest
-```
-
-В `backend/.env`:
-
-```env
-USE_OLLAMA=true
-```
-
-Чтобы вернуться на Groq — `USE_OLLAMA=false`. Менять код не нужно.
-
-### Рекомендуемые русскоязычные модели
+**Рекомендуемые русскоязычные модели:**
 
 | Модель | Размер | Особенности |
 |---|---|---|
-| `yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest` | ~8 GB | Быстрая, хороший русский |
+| `yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest` | ~8 GB | Быстрая, хороший русский — **дефолт** |
 | `Elephanterus/T-lite-it-1.0:7.6B-Q8_0` | ~8 GB | T-Lite от Т-банка |
 | `t-tech/T-pro-it-2.0:q4_K_M` | ~20 GB | T-Pro, выше качество, нужно ≥ 24 GB RAM |
 
----
-
-## Управление контейнерами
-
-```bash
-docker compose up --build -d      # запустить в фоне
-docker compose logs -f            # логи всех сервисов
-docker compose logs -f backend    # логи бэкенда
-docker compose down               # остановить
-docker compose down -v            # остановить + сбросить БД
-```
+Минимальные требования для дефолтной модели: **12 GB RAM**.
 
 ---
 
 ## Частые проблемы
 
-**Порт 3000 или 8000 уже занят** — поменять маппинг в `docker-compose.yml`:
+**Порт 3000 или 8000 занят** — поменять маппинг в `docker-compose.yml`:
 ```yaml
 ports:
   - "3001:3000"
 ```
 
-**Фронтенд не достучаться до бэкенда** — `NEXT_PUBLIC_API_URL` вшивается при сборке образа. Если бэкенд на другом адресе:
+**Фронтенд не достучаться до бэкенда** — `NEXT_PUBLIC_API_URL` вшивается при сборке Docker-образа:
 ```bash
 docker compose build --build-arg NEXT_PUBLIC_API_URL=http://your-host:8000 frontend
-docker compose up
 ```
 
 **Сбросить базу данных:**
 ```bash
-docker compose down -v
-docker compose up
+docker compose down -v && docker compose up
+# или локально: удалить backend/db/td_demo.db, перезапустить бэкенд
 ```
 
 ---
@@ -230,7 +170,7 @@ docker compose up
 ```
 ├── backend/
 │   ├── agents/          # orchestrator, career_agent, learning_agent, onboarding_agent, reviewer
-│   ├── core/            # config (pydantic-settings), database, seed_data
+│   ├── core/            # config (pydantic-settings + get_llm с fallback), database, seed_data
 │   ├── db/              # schema.sql, td_demo.db (создаётся при старте)
 │   ├── rag/             # retriever.py — FTS5 поиск по knowledge_fts
 │   ├── routers/         # chat, employees, career, courses, dashboard
@@ -239,8 +179,9 @@ docker compose up
 │   └── src/
 │       ├── app/         # /chat, /career, /onboarding, /dashboard
 │       ├── components/  # layout, chat, career, dashboard
-│       ├── hooks/       # useStream.ts — SSE-клиент
+│       ├── hooks/       # useStream.ts — SSE-клиент с историей
 │       ├── lib/         # api.ts, types.ts
 │       └── mock/        # employee.ts — данные для режима без бэкенда
+├── start.py             # кросс-платформенный лаунчер с автозапуском Ollama
 └── docker-compose.yml
 ```

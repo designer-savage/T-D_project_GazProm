@@ -22,53 +22,109 @@ COMPETENCIES = [
     ("emp_002", "Python", 3, 4, 1),
     ("emp_002", "System Design", 2, 4, 2),
     ("emp_002", "SQL", 4, 4, 0),
+    ("emp_002", "Docker", 2, 4, 2),
     ("emp_003", "Python", 2, 4, 2),
     ("emp_003", "Git", 2, 3, 1),
     ("emp_003", "SQL", 1, 3, 2),
+    ("emp_003", "Linux", 1, 3, 2),
     ("emp_004", "Spark", 4, 5, 1),
     ("emp_004", "Data Modeling", 4, 5, 1),
+    ("emp_004", "Python", 4, 5, 1),
     ("emp_005", "Python", 3, 4, 1),
     ("emp_005", "Airflow", 2, 4, 2),
+    ("emp_005", "SQL", 3, 4, 1),
+    ("emp_006", "Architecture Patterns", 5, 5, 0),
+    ("emp_006", "System Design", 5, 5, 0),
+    ("emp_006", "Team Leadership", 4, 5, 1),
+    ("emp_007", "Python", 1, 3, 2),
+    ("emp_007", "Git", 1, 3, 2),
+    ("emp_008", "SQL", 3, 4, 1),
+    ("emp_008", "Python", 2, 4, 2),
+    ("emp_008", "Airflow", 1, 3, 2),
 ]
 
 KPI_RECORDS = [
     ("emp_001", "Q1 2025", 0.85, "technical", '{"tasks_done": 12, "bugs": 1}'),
     ("emp_001", "Q4 2024", 0.80, "technical", '{"tasks_done": 10, "bugs": 2}'),
     ("emp_002", "Q1 2025", 0.72, "technical", '{"tasks_done": 8, "bugs": 3}'),
+    ("emp_002", "Q4 2024", 0.68, "technical", '{"tasks_done": 7, "bugs": 4}'),
     ("emp_003", "Q1 2025", 0.60, "technical", '{"tasks_done": 5, "bugs": 4}'),
     ("emp_004", "Q1 2025", 0.90, "technical", '{"tasks_done": 15, "bugs": 0}'),
+    ("emp_004", "Q4 2024", 0.88, "technical", '{"tasks_done": 14, "bugs": 1}'),
     ("emp_005", "Q1 2025", 0.68, "technical", '{"tasks_done": 7, "bugs": 3}'),
+    ("emp_006", "Q1 2025", 0.92, "technical", '{"tasks_done": 18, "bugs": 0}'),
+    ("emp_007", "Q1 2025", 0.55, "technical", '{"tasks_done": 4, "bugs": 5}'),
+    ("emp_008", "Q1 2025", 0.74, "technical", '{"tasks_done": 9, "bugs": 2}'),
 ]
 
 COURSES = [
-    ("c_001", "Архитектура распределённых систем", "Паттерны и подходы к проектированию высоконагруженных систем", 20, "technical", "senior", None),
-    ("c_002", "Управление командой разработки", "Практики тимлида: 1-on-1, найм, обратная связь", 16, "management", "lead", None),
-    ("c_003", "Системный дизайн: от задачи к архитектуре", "Разбор реальных кейсов проектирования систем", 12, "technical", "senior", None),
-    ("c_004", "Python: продвинутые паттерны", "Метаклассы, декораторы, асинхронность", 10, "technical", "middle", None),
-    ("c_005", "SQL для аналитиков и инженеров", "Оконные функции, оптимизация запросов, индексы", 8, "technical", "junior", None),
-    ("c_006", "Apache Spark для data engineers", "RDD, DataFrame API, оптимизация job'ов", 24, "technical", "senior", None),
-    ("c_007", "Apache Airflow: оркестрация пайплайнов", "DAG, операторы, мониторинг", 12, "technical", "middle", None),
-    ("c_008", "Soft skills для разработчика", "Коммуникация, презентации, работа в команде", 6, "soft_skills", "junior", None),
-    ("c_009", "Git: продвинутые практики", "Rebase, cherry-pick, CI/CD интеграция", 4, "technical", "junior", None),
-    ("c_010", "Data Modeling: от концепции до продакшна", "Нормализация, dimensional modeling, Data Vault", 16, "technical", "senior", None),
-    ("c_011", "Основы машинного обучения", "Классические алгоритмы ML, sklearn, метрики", 20, "technical", "middle", None),
-    ("c_012", "Docker и Kubernetes для разработчиков", "Контейнеризация, деплой, мониторинг", 14, "technical", "middle", None),
-    ("c_013", "Product Thinking для инженеров", "Как мыслить продуктово и влиять на roadmap", 8, "soft_skills", "senior", None),
-    ("c_014", "Безопасная разработка (OWASP)", "Уязвимости, code review, защита данных", 10, "technical", "middle", None),
-    ("c_015", "Введение в облачные технологии", "Базовые концепции cloud, IaaC, мониторинг", 12, "technical", "junior", None),
+    # Технические — senior/lead
+    ("c_001", "Архитектура распределённых систем", "[Слёрм] Паттерны и подходы к проектированию высоконагруженных систем: CAP, CQRS, Event Sourcing", 20, "technical", "senior", None),
+    ("c_002", "Управление командой разработки", "[Яндекс Практикум] Практики тимлида: 1-on-1, найм, обратная связь, performance review", 16, "management", "lead", None),
+    ("c_003", "Системный дизайн: от задачи к архитектуре", "[Слёрм] Разбор реальных кейсов: URL shortener, Twitter, Netflix", 12, "technical", "senior", None),
+    ("c_006", "Apache Spark для data engineers", "[Skillfactory] RDD, DataFrame API, Catalyst Optimizer, тюнинг job'ов", 24, "technical", "senior", None),
+    ("c_010", "Data Modeling: от концепции до продакшна", "[Нетология] Нормализация, Kimball, Data Vault 2.0, практика на реальных датасетах", 16, "technical", "senior", None),
+    ("c_013", "Product Thinking для инженеров", "[Яндекс Практикум] Как мыслить продуктово, влиять на roadmap, метрики и A/B тесты", 8, "soft_skills", "senior", None),
+    ("c_020", "Kubernetes: продвинутое администрирование", "[Слёрм] Helm, Operators, RBAC, мониторинг кластера, troubleshooting", 20, "technical", "senior", None),
+    ("c_021", "FinOps: оптимизация облачных затрат", "[Внутренний курс] Анализ потребления, резервирование, rightsizing для on-premise облака", 8, "management", "lead", None),
+    ("c_022", "Высоконагруженные системы: кейсы Газпром Нефти", "[Внутренний курс] Разбор архитектурных решений внутренних платформ с командой архитектуры", 12, "technical", "lead", None),
+    # Технические — middle
+    ("c_004", "Python: продвинутые паттерны", "[Яндекс Практикум] Метаклассы, декораторы, asyncio, профилирование и оптимизация", 10, "technical", "middle", None),
+    ("c_007", "Apache Airflow: оркестрация пайплайнов", "[Нетология] DAG design patterns, кастомные операторы, мониторинг, масштабирование", 12, "technical", "middle", None),
+    ("c_011", "Основы машинного обучения", "[Яндекс Практикум] Классические алгоритмы, sklearn, оценка моделей, feature engineering", 20, "technical", "middle", None),
+    ("c_012", "Docker и Kubernetes для разработчиков", "[Слёрм] Контейнеризация, Compose, базовый Kubernetes, деплой приложений", 14, "technical", "middle", None),
+    ("c_014", "Безопасная разработка (OWASP Top 10)", "[Внутренний курс] Уязвимости, практика code review, защита данных, pen testing basics", 10, "technical", "middle", None),
+    ("c_023", "PostgreSQL: глубокое погружение", "[Слёрм] MVCC, индексы, планировщик запросов, партиционирование, репликация", 16, "technical", "middle", None),
+    ("c_024", "REST API: проектирование и best practices", "[Внутренний курс] OpenAPI, версионирование, аутентификация, rate limiting, документирование", 8, "technical", "middle", None),
+    ("c_025", "Grafana + Prometheus: observability стек", "[Слёрм] Метрики, алерты, дашборды, трейсинг с Jaeger, Loki для логов", 10, "technical", "middle", None),
+    # Технические — junior
+    ("c_005", "SQL для аналитиков и инженеров", "[Нетология] Оконные функции, CTE, оптимизация запросов, работа с NULL", 8, "technical", "junior", None),
+    ("c_009", "Git: продвинутые практики", "[Внутренний курс] Rebase, cherry-pick, bisect, хуки, GitLab CI/CD интеграция", 4, "technical", "junior", None),
+    ("c_015", "Введение в облачные технологии", "[Нетология] Базовые концепции cloud, виртуализация, IaC с Terraform, мониторинг", 12, "technical", "junior", None),
+    ("c_026", "Linux для разработчиков", "[Слёрм] Bash, права, процессы, сети, cron, systemd — то, что нужно каждый день", 8, "technical", "junior", None),
+    ("c_027", "Python: базовый курс", "[Яндекс Практикум] Основы языка, структуры данных, ООП, тестирование, проект", 40, "technical", "junior", None),
+    # Soft skills
+    ("c_008", "Soft skills для разработчика", "[Яндекс Практикум] Коммуникация, фидбек, презентации, работа в распределённых командах", 6, "soft_skills", "junior", None),
+    ("c_028", "Публичные выступления и tech talks", "[Внутренний курс] Структура доклада, работа с аудиторией, визуализация идей", 4, "soft_skills", "middle", None),
+    ("c_029", "Эффективное написание документации", "[Внутренний курс] ADR, RFC, runbook, README — как писать так, чтобы читали", 4, "soft_skills", "middle", None),
 ]
 
 LEARNING_PROGRESS = [
+    # emp_001 — senior, активно учится
     ("emp_001", "c_001", "in_progress", 60, "2025-03-01", None),
     ("emp_001", "c_002", "not_started", 0, None, None),
     ("emp_001", "c_003", "completed", 100, "2025-01-10", "2025-02-15"),
+    ("emp_001", "c_013", "completed", 100, "2024-10-01", "2024-11-20"),
+    ("emp_001", "c_020", "in_progress", 35, "2025-04-01", None),
+    # emp_002 — middle, умеренно
     ("emp_002", "c_004", "in_progress", 40, "2025-02-20", None),
     ("emp_002", "c_005", "completed", 100, "2024-11-01", "2024-12-10"),
+    ("emp_002", "c_012", "in_progress", 20, "2025-04-10", None),
+    ("emp_002", "c_014", "not_started", 0, None, None),
+    # emp_003 — junior, отстаёт
     ("emp_003", "c_005", "in_progress", 25, "2025-03-10", None),
     ("emp_003", "c_009", "not_started", 0, None, None),
+    ("emp_003", "c_026", "not_started", 0, None, None),
+    # emp_004 — senior, высокая активность
     ("emp_004", "c_006", "completed", 100, "2024-09-01", "2024-10-15"),
     ("emp_004", "c_010", "in_progress", 75, "2025-02-01", None),
+    ("emp_004", "c_011", "completed", 100, "2024-06-01", "2024-08-01"),
+    ("emp_004", "c_023", "completed", 100, "2023-11-01", "2024-01-15"),
+    # emp_005 — middle, есть риск
     ("emp_005", "c_007", "in_progress", 30, "2025-03-05", None),
+    ("emp_005", "c_005", "completed", 100, "2024-08-01", "2024-09-10"),
+    ("emp_005", "c_011", "not_started", 0, None, None),
+    # emp_006 — lead, уже много завершено
+    ("emp_006", "c_002", "completed", 100, "2023-03-01", "2023-04-15"),
+    ("emp_006", "c_022", "completed", 100, "2024-01-10", "2024-02-20"),
+    ("emp_006", "c_021", "in_progress", 50, "2025-03-01", None),
+    # emp_007 — junior, новичок
+    ("emp_007", "c_027", "in_progress", 15, "2025-03-01", None),
+    ("emp_007", "c_008", "not_started", 0, None, None),
+    # emp_008 — middle
+    ("emp_008", "c_007", "in_progress", 45, "2025-02-15", None),
+    ("emp_008", "c_005", "completed", 100, "2024-12-01", "2025-01-20"),
+    ("emp_008", "c_025", "not_started", 0, None, None),
 ]
 
 KNOWLEDGE_DOCUMENTS = [

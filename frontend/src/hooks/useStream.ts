@@ -11,11 +11,13 @@ export function useStream() {
 
   const loadHistory = useCallback(async (employeeId: string) => {
     try {
-      const res = await fetch(`${API_URL}/chat/history?employee_id=${employeeId}&limit=10`)
-      if (!res.ok) return
+      const res = await fetch(`${API_URL}/chat/history?employee_id=${employeeId}&limit=30`)
+      if (!res.ok) {
+        setMessages([])
+        return
+      }
       const data = await res.json()
-      if (!data.messages?.length) return
-      const loaded: Message[] = data.messages.map((m: { role: string; content: string }) => ({
+      const loaded: Message[] = (data.messages ?? []).map((m: { role: string; content: string }) => ({
         id: crypto.randomUUID(),
         role: m.role as "user" | "assistant",
         content: m.content,
@@ -23,7 +25,7 @@ export function useStream() {
       }))
       setMessages(loaded)
     } catch {
-      // история недоступна — не критично
+      setMessages([])
     }
   }, [])
 

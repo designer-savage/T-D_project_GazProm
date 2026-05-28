@@ -22,14 +22,13 @@ export default function ChatPage() {
   const currentId = isManager ? DEMO_IDS.manager : DEMO_IDS.employee
 
   useEffect(() => {
+    setEmployee(null)
     if (USE_MOCK) {
       setEmployee(mockEmployee)
       return
     }
     api.getEmployee(currentId).then(setEmployee).catch(() => setEmployee(mockEmployee))
-    if (!USE_MOCK) {
-      loadHistory(currentId)
-    }
+    loadHistory(currentId)
   }, [currentId, loadHistory])
 
   const handlePreset = (text: string) => {
@@ -38,7 +37,6 @@ export default function ChatPage() {
 
   const handleRoleSwitch = () => {
     setIsManager((v) => !v)
-    setEmployee(null)
   }
 
   return (

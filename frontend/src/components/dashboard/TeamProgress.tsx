@@ -7,52 +7,101 @@ const GRADE_LABELS: Record<string, string> = {
   lead: "Lead",
 }
 
+const GRADE_COLORS: Record<string, string> = {
+  junior: "bg-state-warn/15 text-amber-700",
+  middle: "bg-accent/15 text-accent",
+  senior: "bg-state-success/15 text-state-success",
+  lead: "bg-purple-100 text-purple-700",
+}
+
+function KpiBar({ score }: { score: number | null }) {
+  if (score === null) return <span className="text-ink-subtle text-xs">—</span>
+  const pct = Math.round(score * 100)
+  const color = pct >= 80 ? "bg-state-success" : pct >= 65 ? "bg-state-warn" : "bg-state-danger"
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-16 bg-line rounded-full h-1.5">
+        <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs text-ink-muted tabular-nums">{pct}%</span>
+    </div>
+  )
+}
+
+function ProgressBar({ pct }: { pct: number }) {
+  const color = pct >= 70 ? "bg-state-success" : pct >= 40 ? "bg-accent" : "bg-state-warn"
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-16 bg-line rounded-full h-1.5">
+        <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs text-ink-muted tabular-nums">{pct}%</span>
+    </div>
+  )
+}
+
 export default function TeamProgress({ members }: { members: TeamMember[] }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900">Прогресс команды</h3>
+    <div className="bg-surface rounded-xl border border-line overflow-hidden">
+      <div className="px-6 py-4 border-b border-line-soft">
+        <h3 className="font-semibold text-ink">Прогресс команды</h3>
+        <p className="text-xs text-ink-subtle mt-0.5">{members.length} сотрудников</p>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
-            <th className="px-6 py-3 text-left">Сотрудник</th>
-            <th className="px-6 py-3 text-left">Грейд</th>
-            <th className="px-6 py-3 text-left">Курсы</th>
-            <th className="px-6 py-3 text-left">Прогресс</th>
-            <th className="px-6 py-3 text-left">Риск</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {members.map((m) => (
-            <tr key={m.id} className={m.risk_flag ? "bg-red-50" : ""}>
-              <td className="px-6 py-3 font-medium text-gray-900">{m.name}</td>
-              <td className="px-6 py-3 text-gray-600">{GRADE_LABELS[m.grade] || m.grade}</td>
-              <td className="px-6 py-3 text-gray-600">
-                {m.courses_completed} / {m.courses_total}
-              </td>
-              <td className="px-6 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-24 bg-gray-100 rounded-full h-1.5">
-                    <div
-                      className={`h-1.5 rounded-full ${m.avg_progress_pct > 50 ? "bg-green-500" : "bg-yellow-400"}`}
-                      style={{ width: `${m.avg_progress_pct}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-gray-500">{m.avg_progress_pct}%</span>
-                </div>
-              </td>
-              <td className="px-6 py-3">
-                {m.risk_flag && (
-                  <span className="inline-flex items-center gap-1 text-xs text-red-600 font-medium">
-                    ⚠ Отстаёт
-                  </span>
-                )}
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-canvas-100 text-xs text-ink-subtle uppercase tracking-wider">
+              <th className="px-6 py-3 text-left font-medium">Сотрудник</th>
+              <th className="px-6 py-3 text-left font-medium">Грейд</th>
+              <th className="px-6 py-3 text-left font-medium">KPI</th>
+              <th className="px-6 py-3 text-left font-medium">Курсы</th>
+              <th className="px-6 py-3 text-left font-medium">Прогресс</th>
+              <th className="px-6 py-3 text-left font-medium">Статус</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-line-soft">
+            {members.map((m) => (
+              <tr key={m.id} className={`hover:bg-canvas-100/50 transition-colors ${m.risk_flag ? "bg-red-50/40" : ""}`}>
+                <td className="px-6 py-3.5">
+                  <div className="font-medium text-ink">{m.name}</div>
+                  <div className="text-xs text-ink-subtle">{m.department}</div>
+                </td>
+                <td className="px-6 py-3.5">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${GRADE_COLORS[m.grade] || "bg-line text-ink-muted"}`}>
+                    {GRADE_LABELS[m.grade] || m.grade}
+                  </span>
+                </td>
+                <td className="px-6 py-3.5">
+                  <KpiBar score={m.kpi_score} />
+                </td>
+                <td className="px-6 py-3.5">
+                  <div className="text-ink-muted tabular-nums">
+                    <span className="text-state-success font-medium">{m.courses_completed}</span>
+                    <span className="text-ink-subtle"> / {m.courses_total}</span>
+                  </div>
+                  {m.courses_in_progress > 0 && (
+                    <div className="text-xs text-ink-subtle">{m.courses_in_progress} в работе</div>
+                  )}
+                </td>
+                <td className="px-6 py-3.5">
+                  <ProgressBar pct={m.avg_progress_pct} />
+                </td>
+                <td className="px-6 py-3.5">
+                  {m.risk_flag ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-state-danger font-medium bg-red-50 px-2 py-0.5 rounded">
+                      ⚠ Отстаёт
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs text-state-success font-medium">
+                      ✓ В норме
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
