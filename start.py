@@ -19,10 +19,17 @@ FRONTEND = ROOT / "frontend"
 IS_WINDOWS = platform.system() == "Windows"
 
 if IS_WINDOWS:
-    import ctypes
-    ctypes.windll.kernel32.SetConsoleMode(
-        ctypes.windll.kernel32.GetStdHandle(-11), 7
-    )
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+        ctypes.windll.kernel32.SetConsoleCP(65001)
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        if handle and handle != -1:
+            ctypes.windll.kernel32.SetConsoleMode(handle, 7)
+    except Exception:
+        pass
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 BLUE   = "\033[94m"
 GREEN  = "\033[92m"
 YELLOW = "\033[93m"
@@ -68,6 +75,13 @@ def check_node():
 def _set_env_var(key: str, value: str):
     """Обновляет или добавляет переменную в backend/.env."""
     env_file = BACKEND / ".env"
+    if not env_file.exists():
+        env_example = BACKEND / ".env.example"
+        if env_example.exists():
+            shutil.copy(env_example, env_file)
+        else:
+            env_file.write_text(f"{key}={value}\n", encoding="utf-8")
+            return
     content = env_file.read_text(encoding="utf-8")
     lines = content.splitlines()
     found = False
@@ -219,11 +233,17 @@ def setup_venv() -> Path:
     return python_bin
 
 
+def npm(*args: str) -> list[str]:
+    if IS_WINDOWS:
+        return ["cmd", "/c", "npm"] + list(args)
+    return ["npm"] + list(args)
+
+
 def setup_frontend():
     if not (FRONTEND / "node_modules").exists():
         print_frontend("Устанавливаю node_modules...")
         subprocess.run(
-            ["npm", "install", "--prefix", str(FRONTEND), "--silent"],
+            npm("install", "--prefix", str(FRONTEND), "--silent"),
             check=True,
         )
 
@@ -242,9 +262,9 @@ def main():
     setup_frontend()
 
     provider = "Ollama (локально)" if ollama_ready else "Groq API"
-    print(f"\n  LLM      → {provider}")
-    print(f"  backend  → http://localhost:8000")
-    print(f"  frontend → http://localhost:3000")
+    print(f"\n  LLM      -> {provider}")
+    print(f"  backend  -> http://localhost:8000")
+    print(f"  frontend -> http://localhost:3000")
     print(f"\nCtrl+C для остановки\n")
 
     popen_kwargs = {} if IS_WINDOWS else {"preexec_fn": os.setsid}
@@ -257,7 +277,7 @@ def main():
         **popen_kwargs,
     )
     frontend_proc = subprocess.Popen(
-        ["npm", "run", "dev", "--prefix", str(FRONTEND)],
+        npm("--prefix", str(FRONTEND), "run", "dev"),
         cwd=str(ROOT),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -271,7 +291,11 @@ def main():
         if proc.poll() is not None:
             return
         if IS_WINDOWS:
-            proc.terminate()
+            subprocess.call(
+                ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         else:
             try:
                 os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
