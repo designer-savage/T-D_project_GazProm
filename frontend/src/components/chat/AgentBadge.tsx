@@ -1,15 +1,21 @@
 import { AgentType } from "@/lib/types"
 
 const AGENT_META: Record<AgentType, { label: string; color: string }> = {
-  career:     { label: "Агент карьеры",    color: "bg-accent/10 text-accent border border-accent/20" },
-  learning:   { label: "Агент обучения",   color: "bg-state-success/10 text-state-success border border-state-success/20" },
-  onboarding: { label: "Агент онбординга", color: "bg-state-warn/10 text-state-warn border border-state-warn/20" },
+  career:     { label: "Агент карьеры",    color: "var(--accent)" },
+  learning:   { label: "Агент обучения",   color: "var(--green)" },
+  onboarding: { label: "Агент онбординга", color: "var(--yellow)" },
 }
 
 export default function AgentBadge({ agent }: { agent: AgentType }) {
   const meta = AGENT_META[agent]
+  if (!meta) return null
   return (
-    <span className={`inline-block text-[11px] font-medium px-2.5 py-0.5 rounded-full ${meta.color}`}>
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      fontSize: 11, fontWeight: 600, color: meta.color,
+      textTransform: "uppercase", letterSpacing: "0.05em",
+    }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: meta.color, opacity: 0.8, display: "inline-block" }} />
       {meta.label}
     </span>
   )

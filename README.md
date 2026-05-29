@@ -18,6 +18,12 @@
   <img src="screenshots/scrs-onboarding.png" width="32%" alt="Онбординг" />
 </p>
 
+<p align="center">
+  <img src="screenshots/scrs-admin.png" width="49%" alt="Управление платформой" />
+  &nbsp;
+  <img src="screenshots/scrs-chat-sidebar.png" width="49%" alt="Чат — боковая панель" />
+</p>
+
 ---
 
 ## Как это работает
@@ -44,8 +50,24 @@
 | **Агент карьеры** | Анализирует грейд, KPI, строит карьерный трек | `employees`, `kpi_records`, `competencies` |
 | **Агент обучения** | Подбирает курсы, строит траекторию | `courses`, `learning_progress` |
 | **Агент онбординга** | Отвечает на вопросы по политикам и процессам | `knowledge_documents` (FTS5 RAG) |
+| **Агент 1-on-1** | Генерирует структурированный бриф для встречи менеджера с сотрудником | `employees`, `kpi_records`, `competencies`, `learning_progress` |
 
 Классификация запроса — один быстрый LLM-вызов (~200 мс): `career`, `learning`, `onboarding` или `mixed`. При `mixed` запускаются агент карьеры и агент обучения последовательно.
+
+---
+
+## Подготовка к 1-on-1
+
+Менеджер нажимает **«Подготовиться»** рядом с сотрудником на дашборде — система за ~10 секунд генерирует структурированный бриф на основе реальных данных из БД:
+
+```
+ЧТО ВЫРОСЛО      — динамика KPI за последние периоды
+ЧТО БЕСПОКОИТ    — компетенции с gap ≥ 2 и зависшие курсы (прогресс < 50%)
+ВОПРОСЫ          — 3 живых вопроса под конкретный профиль
+ПРЕДЛАГАЕМЫЕ ЦЕЛИ — 2 цели с дедлайном +30 дней
+```
+
+Бриф стримится в модальное окно, можно скопировать одной кнопкой. Эндпоинт: `POST /manager/one-on-one-prep`.
 
 ---
 
@@ -216,16 +238,16 @@ docker compose down -v && docker compose up
 
 ```
 ├── backend/
-│   ├── agents/          # orchestrator, career_agent, learning_agent, onboarding_agent, reviewer
+│   ├── agents/          # orchestrator, career_agent, learning_agent, onboarding_agent, one_on_one_agent, reviewer
 │   ├── core/            # config (pydantic-settings + get_llm с fallback), database, seed_data
 │   ├── db/              # schema.sql, td_demo.db (создаётся при старте)
 │   ├── rag/             # retriever.py — FTS5 поиск по knowledge_fts
-│   ├── routers/         # chat, employees, career, courses, dashboard, admin
+│   ├── routers/         # chat, employees, career, courses, dashboard, admin, manager
 │   └── main.py
 ├── frontend/
 │   └── src/
 │       ├── app/         # /chat, /career, /onboarding, /dashboard, /admin
-│       ├── components/  # layout, chat, career, dashboard
+│       ├── components/  # layout, chat, career, dashboard (включая OneOnOneModal)
 │       ├── context/     # ProfileContext.tsx — глобальный state профиля (3 роли)
 │       ├── hooks/       # useStream.ts — SSE-клиент с историей
 │       ├── lib/         # api.ts, types.ts

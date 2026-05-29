@@ -11,12 +11,25 @@ const DEMO_IDS: Record<ProfileRole, string> = {
 
 const ROLE_CYCLE: ProfileRole[] = ["employee", "manager", "admin"]
 
+interface ProfileInfo {
+  name: string
+  grade: string
+  dept: string
+}
+
+const PROFILE_INFO: Record<ProfileRole, ProfileInfo> = {
+  employee: { name: "Иван Петров",      grade: "senior",    dept: "Разработка платформ" },
+  manager:  { name: "Павел Соколов",    grade: "lead",      dept: "Разработка платформ" },
+  admin:    { name: "Светлана Орлова",  grade: "principal", dept: "HR BP" },
+}
+
 interface ProfileContextType {
   role: ProfileRole
   isManager: boolean
   isAdmin: boolean
   currentId: string
   toggleRole: () => void
+  profile: ProfileInfo & { role: ProfileRole }
 }
 
 const ProfileContext = createContext<ProfileContextType>({
@@ -25,6 +38,7 @@ const ProfileContext = createContext<ProfileContextType>({
   isAdmin: false,
   currentId: DEMO_IDS.employee,
   toggleRole: () => {},
+  profile: { ...PROFILE_INFO.employee, role: "employee" },
 })
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
@@ -39,6 +53,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       isAdmin: role === "admin",
       currentId,
       toggleRole: () => setRoleIndex((i) => (i + 1) % ROLE_CYCLE.length),
+      profile: { ...PROFILE_INFO[role], role },
     }}>
       {children}
     </ProfileContext.Provider>

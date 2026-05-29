@@ -1,30 +1,37 @@
 import { Competency } from "@/lib/types"
 
+function IconCheck({ size = 14 }: { size?: number }) {
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+}
+
 export default function SkillGapCard({ competency }: { competency: Competency }) {
   const pct = Math.round((competency.current_level / competency.target_level) * 100)
-  const gapColor =
-    competency.gap === 0 ? "bg-state-success" :
-    competency.gap === 1 ? "bg-state-warn" :
-    "bg-state-danger"
+  const color = competency.gap === 0 ? "var(--green)" : competency.gap === 1 ? "var(--yellow)" : "var(--red)"
 
   return (
-    <div className="bg-surface rounded-xl border border-line p-4">
-      <div className="flex justify-between items-start mb-2.5">
-        <span className="text-sm font-medium text-ink">{competency.skill_name}</span>
+    <div
+      className="glass-card glass-card-hover"
+      style={{ padding: "14px 18px" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-1)" }}>{competency.skill_name}</span>
         {competency.gap === 0 ? (
-          <span className="text-xs text-state-success font-medium">✓ Цель достигнута</span>
+          <span style={{ fontSize: 12, color: "var(--green)", fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
+            <IconCheck size={14} /> Достигнуто
+          </span>
         ) : (
-          <span className="text-xs text-ink-muted">gap: {competency.gap}</span>
+          <span style={{ fontSize: 12, color: "var(--text-3)" }}>gap: {competency.gap}</span>
         )}
       </div>
-      <div className="flex items-center gap-2">
-        <div className="flex-1 bg-canvas-300 rounded-full h-1.5">
-          <div
-            className={`h-1.5 rounded-full transition-all ${gapColor}`}
-            style={{ width: `${Math.min(pct, 100)}%` }}
-          />
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1, height: 5, borderRadius: 5, background: "var(--glass-border)", overflow: "hidden" }}>
+          <div style={{
+            width: `${Math.min(pct, 100)}%`, height: "100%",
+            borderRadius: 5, background: color,
+            transition: "width 0.6s ease",
+          }} />
         </div>
-        <span className="text-xs text-ink-muted w-16 text-right tabular-nums">
+        <span style={{ fontSize: 12, color: "var(--text-3)", fontVariantNumeric: "tabular-nums", minWidth: 40, textAlign: "right" }}>
           {competency.current_level} / {competency.target_level}
         </span>
       </div>

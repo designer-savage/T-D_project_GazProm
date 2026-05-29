@@ -1,46 +1,34 @@
 "use client"
 import { useState, useEffect } from "react"
-import Sidebar from "@/components/layout/Sidebar"
-import Header from "@/components/layout/Header"
+import AppShell from "@/components/layout/AppShell"
 import CareerTrack from "@/components/career/CareerTrack"
 import SkillGapCard from "@/components/career/SkillGapCard"
 import { api } from "@/lib/api"
-import { Employee, CareerTrack as CareerTrackType } from "@/lib/types"
+import { CareerTrack as CareerTrackType } from "@/lib/types"
 import { useProfile } from "@/context/ProfileContext"
-import { mockEmployee, mockCareer } from "@/mock/employee"
+import { mockCareer } from "@/mock/employee"
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true"
 
 export default function CareerPage() {
-  const [employee, setEmployee] = useState<Employee | null>(null)
   const [track, setTrack] = useState<CareerTrackType | null>(null)
   const { currentId } = useProfile()
 
   useEffect(() => {
-    setEmployee(null)
     setTrack(null)
-    if (USE_MOCK) {
-      setEmployee(mockEmployee)
-      setTrack(mockCareer)
-      return
-    }
-    Promise.all([
-      api.getEmployee(currentId),
-      api.getCareerTrack(currentId),
-    ])
-      .then(([emp, t]) => { setEmployee(emp); setTrack(t) })
-      .catch(() => { setEmployee(mockEmployee); setTrack(mockCareer) })
+    if (USE_MOCK) { setTrack(mockCareer); return }
+    api.getCareerTrack(currentId).then(setTrack).catch(() => setTrack(mockCareer))
   }, [currentId])
 
   const gaps = track?.competencies.filter((c) => c.gap > 0) ?? []
   const done = track?.competencies.filter((c) => c.gap === 0) ?? []
+  const kpiPct = 85
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header employee={employee} />
-        <main className="flex-1 overflow-y-auto p-6 space-y-6 bg-canvas-100">
+    <AppShell>
+      <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
+
           {track ? (
             <>
               <CareerTrack
@@ -49,44 +37,41 @@ export default function CareerPage() {
                 estimatedMonths={track.estimated_months}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-surface rounded-xl border border-line p-5">
-                  <div className="text-2xl font-bold text-accent tabular-nums">
-                    {employee?.kpi_score ? `${Math.round(employee.kpi_score * 100)}%` : "—"}
-                  </div>
-                  <div className="text-sm text-ink-muted mt-1">Средний KPI</div>
+              {/* Stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div className="glass-card anim-fade-up" style={{ padding: "20px 24px", animationDelay: "0.1s" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: kpiPct >= 80 ? "var(--green)" : kpiPct >= 65 ? "var(--yellow)" : "var(--red)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{kpiPct}%</div>
+                  <div style={{ fontSize: 13, color: "var(--text-2)", marginTop: 6 }}>Средний KPI</div>
                 </div>
-                <div className="bg-surface rounded-xl border border-line p-5">
-                  <div className="text-2xl font-bold text-state-success tabular-nums">
-                    {done.length} / {track.competencies.length}
-                  </div>
-                  <div className="text-sm text-ink-muted mt-1">Целевых компетенций достигнуто</div>
+                <div className="glass-card anim-fade-up" style={{ padding: "20px 24px", animationDelay: "0.15s" }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{done.length} / {track.competencies.length}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-2)", marginTop: 6 }}>Целевых компетенций достигнуто</div>
                 </div>
               </div>
 
               {gaps.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-ink mb-3">Разрывы в компетенциях</h3>
-                  <div className="grid gap-3">
+                <div className="anim-fade-up" style={{ animationDelay: "0.2s" }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>Разрывы в компетенциях</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {gaps.map((c) => <SkillGapCard key={c.skill_name} competency={c} />)}
                   </div>
                 </div>
               )}
 
               {done.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-ink mb-3">Достигнутые компетенции</h3>
-                  <div className="grid gap-3">
+                <div className="anim-fade-up" style={{ animationDelay: "0.3s" }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", marginBottom: 12 }}>Достигнутые компетенции</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {done.map((c) => <SkillGapCard key={c.skill_name} competency={c} />)}
                   </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="text-center text-ink-subtle py-20">Загрузка...</div>
+            <div style={{ textAlign: "center", color: "var(--text-3)", padding: "80px 0" }}>Загрузка...</div>
           )}
-        </main>
+        </div>
       </div>
-    </div>
+    </AppShell>
   )
 }

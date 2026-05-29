@@ -34,6 +34,14 @@ async function del<T>(path: string): Promise<T> {
   return res.json()
 }
 
+export function streamOneOnOnePrep(managerId: string, employeeId: string): Promise<Response> {
+  return fetch(`${API_URL}/manager/one-on-one-prep`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ manager_id: managerId, employee_id: employeeId }),
+  })
+}
+
 export const api = {
   getEmployee: (id: string) => get<Employee>(`/employees/${id}`),
   getCareerTrack: (id: string) => get<CareerTrack>(`/career/${id}`),

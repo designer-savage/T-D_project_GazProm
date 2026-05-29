@@ -25,6 +25,11 @@ IMPROVE.md
 PERSPECTIVES.md
 useless/
 CLAUDE.md
+PLAN.md
+FEATURE*.md
+ROADMAP.md
+NOTES.md
+docs/internal/
 
 # Tool directories
 .claude/
