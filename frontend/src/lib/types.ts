@@ -1,4 +1,4 @@
-export type Role = "employee" | "manager"
+export type Role = "employee" | "manager" | "admin"
 export type Grade = "junior" | "middle" | "senior" | "lead" | "principal"
 export type AgentType = "career" | "learning" | "onboarding"
 
@@ -77,4 +77,15 @@ export interface DashboardData {
   members: TeamMember[]
   skill_gaps: SkillGap[]
   courses_stats: CoursesStats
+}
+
+export interface KnowledgeDoc {
+  id: string
+  title: string
+  category: string
+  created_at: string
+}
+
+export interface AdminCourse extends Course {
+  url: string | null
 }

@@ -1,14 +1,15 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { MessageSquare, TrendingUp, Rocket, BarChart2, Sparkles, ChevronRight } from "lucide-react"
+import { MessageSquare, TrendingUp, Rocket, BarChart2, Sparkles, ChevronRight, Settings } from "lucide-react"
 import { useProfile } from "@/context/ProfileContext"
 
 const NAV = [
-  { href: "/chat",       label: "Чат с агентом",    icon: MessageSquare },
-  { href: "/career",     label: "Карьерный трек",    icon: TrendingUp },
-  { href: "/onboarding", label: "Онбординг",         icon: Rocket },
-  { href: "/dashboard",  label: "Дашборд команды",   icon: BarChart2 },
+  { href: "/chat",       label: "Чат с агентом",    icon: MessageSquare, adminOnly: false },
+  { href: "/career",     label: "Карьерный трек",    icon: TrendingUp,    adminOnly: false },
+  { href: "/onboarding", label: "Онбординг",         icon: Rocket,        adminOnly: false },
+  { href: "/dashboard",  label: "Дашборд команды",   icon: BarChart2,     adminOnly: false },
+  { href: "/admin",      label: "Управление",        icon: Settings,      adminOnly: true  },
 ]
 
 const PRESETS_EMPLOYEE = [
@@ -31,7 +32,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onPreset }: SidebarProps) {
   const pathname = usePathname()
-  const { isManager } = useProfile()
+  const { isManager, isAdmin } = useProfile()
   const PRESETS = isManager ? PRESETS_MANAGER : PRESETS_EMPLOYEE
 
   return (
@@ -49,7 +50,7 @@ export default function Sidebar({ onPreset }: SidebarProps) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {NAV.map((item) => {
+        {NAV.filter((item) => !item.adminOnly || isAdmin).map((item) => {
           const Icon = item.icon
           const active = pathname === item.href
           return (

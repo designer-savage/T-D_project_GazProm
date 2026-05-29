@@ -25,3 +25,7 @@ IMPROVE.md
 PERSPECTIVES.md
 useless/
 CLAUDE.md
+
+# Tool directories
+.claude/
+.playwright-mcp/

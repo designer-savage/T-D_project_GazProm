@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from core.database import init_db
 from core.seed_data import seed
-from routers import chat, employees, career, courses, dashboard
+from routers import chat, employees, career, courses, dashboard, admin
 
 app = FastAPI(title="T&D Platform API", version="0.1.6")
 
@@ -21,6 +21,7 @@ app.include_router(employees.router)
 app.include_router(career.router)
 app.include_router(courses.router)
 app.include_router(dashboard.router)
+app.include_router(admin.router)
 
 
 @app.on_event("startup")

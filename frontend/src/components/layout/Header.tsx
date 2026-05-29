@@ -9,6 +9,12 @@ const GRADE_LABELS: Record<string, string> = {
   principal: "Principal",
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  employee: "Сотрудник",
+  manager:  "Руководитель",
+  admin:    "HR BP",
+}
+
 interface HeaderProps {
   employee: Employee | null
   onRoleSwitch?: () => void
@@ -34,7 +40,7 @@ export default function Header({ employee, onRoleSwitch }: HeaderProps) {
                 {GRADE_LABELS[employee.grade]}
               </span>
               <span className="text-xs text-ink-muted">
-                {employee.role === "manager" ? "Руководитель" : "Сотрудник"}
+                {ROLE_LABELS[employee.role] ?? "Сотрудник"}
               </span>
             </div>
           </div>

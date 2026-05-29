@@ -12,6 +12,7 @@ EMPLOYEES = [
     ("emp_008", "Ольга Морозова", "employee", "middle", "Data Engineering", "mgr_002", "2023-07-18"),
     ("mgr_001", "Павел Соколов", "manager", "lead", "Разработка платформ", None, "2019-08-01"),
     ("mgr_002", "Наталья Волкова", "manager", "lead", "Data Engineering", None, "2018-03-15"),
+    ("hr_001", "Светлана Орлова", "admin", "principal", "Управление персоналом и T&D", None, "2017-06-01"),
 ]
 
 COMPETENCIES = [
