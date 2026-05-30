@@ -38,7 +38,7 @@
 3. **Агент обучения** подбирает конкретные курсы из каталога под выявленные пробелы
 4. Оба ответа стримятся в чат через SSE, история диалога сохраняется между сессиями
 
-Интерфейс **адаптируется под профиль**: при переключении роли меняются быстрые запросы в сайдбаре, шаги онбординга и карьерный трек.
+Интерфейс **адаптируется под профиль**: при переключении роли меняются быстрые запросы в сайдбаре, шаги онбординга и карьерный трек. Поддерживается переключение dark/light темы — сохраняется в `localStorage`.
 
 ---
 
@@ -247,11 +247,12 @@ docker compose down -v && docker compose up
 ├── frontend/
 │   └── src/
 │       ├── app/         # /chat, /career, /onboarding, /dashboard, /admin
-│       ├── components/  # layout, chat, career, dashboard (включая OneOnOneModal)
-│       ├── context/     # ProfileContext.tsx — глобальный state профиля (3 роли)
+│       ├── components/  # layout (AppShell, Header, Sidebar), chat, career, dashboard (включая OneOnOneModal)
+│       ├── context/     # ProfileContext.tsx — 3 роли; ThemeContext.tsx — dark/light тема
 │       ├── hooks/       # useStream.ts — SSE-клиент с историей
 │       ├── lib/         # api.ts, types.ts
 │       └── mock/        # employee.ts — данные для режима без бэкенда
+├── finetune-demo/       # демо файнтюнинга: train.py, inference.py, requirements.txt
 ├── start.py             # кросс-платформенный лаунчер с автозапуском Ollama
 └── docker-compose.yml
 ```
