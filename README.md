@@ -121,8 +121,7 @@ python start.py
 
 Скрипт делает всё автоматически:
 
-- Если **Ollama установлен** — запускает `ollama serve`, скачивает модель если нужно, выставляет `USE_OLLAMA=true`
-- Если **Ollama не установлен** — падает на Groq, требует `GROQ_API_KEY` в `backend/.env`
+- Проверяет Ollama, запускает `ollama serve` если нужно, скачивает модель если не скачана
 - Создаёт venv, ставит зависимости, поднимает бэкенд и фронтенд параллельно
 
 Логи выводятся с цветными префиксами `[ollama]` / `[backend]` / `[frontend]`. Остановка — Ctrl+C: скрипт убивает все дочерние процессы целиком, порты 8000 и 3000 освобождаются гарантированно.
@@ -132,31 +131,16 @@ python start.py
 | Приложение | http://localhost:3000 |
 | API / Swagger | http://localhost:8000/docs |
 
-### Groq как запасной вариант
-
-Если Ollama не установлен или недоступен, нужен ключ Groq:
-
-```bash
-cp backend/.env.example backend/.env
-# вписать GROQ_API_KEY в backend/.env
-```
-
-Ключ бесплатно: [console.groq.com](https://console.groq.com).
-
-Если оба провайдера настроены — Ollama всегда в приоритете. При падении Ollama во время работы бэкенд автоматически переключается на Groq без перезапуска.
-
 ---
 
 ## Запуск через Docker
 
 ```bash
-cp backend/.env.example backend/.env   # вписать GROQ_API_KEY
+cp backend/.env.example backend/.env
 docker compose up --build              # первый запуск (~3–5 мин)
 docker compose up                      # последующие запуски
 docker compose down -v                 # остановить + сбросить БД
 ```
-
-> В Docker используется только Groq (Ollama внутри контейнера не поддерживается).
 
 ---
 
@@ -165,16 +149,11 @@ docker compose down -v                 # остановить + сбросить
 **`backend/.env`** (создать из `.env.example`):
 
 ```env
-GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
-
 DATABASE_URL=./db/td_demo.db
 CORS_ORIGINS=http://localhost:3000
 SEED_DB=true
 DEBUG=false
 
-# start.py выставляет автоматически по результату проверки Ollama
-USE_OLLAMA=true
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=yandex/YandexGPT-5-Lite-8B-instruct-GGUF:latest
 ```
